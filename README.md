@@ -1,12 +1,12 @@
 # Salfa · Suite de Prevención
 
-Cinco aplicaciones web independientes (sin backend, sin build step) para prevención de riesgos en terreno.
+Seis aplicaciones web independientes (sin backend, sin build step) para prevención de riesgos en terreno.
 
 ## Estructura
 
 ```
 salfa-prevencion/
-├── index.html              # Página de inicio, enlaza a las cinco apps
+├── index.html              # Página de inicio, enlaza a las seis apps
 ├── fatiga/
 │   └── index.html          # Turno·Seguro — control de fatiga y test de reacción
 ├── checklist/
@@ -16,12 +16,15 @@ salfa-prevencion/
 │   ├── index.html          # Bitácora de exposición ocupacional a calor (D.S. 594)
 │   ├── vendor/              # jsPDF + jspdf-autotable (vendorizados, sin CDN)
 │   └── apps-script/
-│       └── Code.gs          # Puente Apps Script: recibe el PDF y lo guarda en Drive (compartido por las 4 apps con subida)
+│       └── Code.gs          # Puente Apps Script: recibe el PDF y lo guarda en Drive (compartido por las 5 apps con subida)
 ├── energia-electrica/
 │   ├── index.html          # RCO N°8 — Contacto con Energía Eléctrica
 │   └── vendor/              # jsPDF + jspdf-autotable (vendorizados, sin CDN)
-└── izaje-cargas/
-    ├── index.html          # RCO N°3 — Caída de Carga Suspendida en Maniobras de Izaje
+├── izaje-cargas/
+│   ├── index.html          # RCO N°3 — Caída de Carga Suspendida en Maniobras de Izaje
+│   └── vendor/              # jsPDF + jspdf-autotable (vendorizados, sin CDN)
+└── hombre-maquina/
+    ├── index.html          # RCO N°6 — Interacción Hombre Máquina
     └── vendor/              # jsPDF + jspdf-autotable (vendorizados, sin CDN)
 ```
 
@@ -63,18 +66,27 @@ Cartilla de verificación de controles críticos operacionales extraída de `SSO
 
 Misma estructura que el resto de la suite: cada ítem SI/NO/N-A + Comentario + Evidencia + adjunto opcional, firma digital (con opción de indicar otro nombre/cargo de quien ejecutó la actividad), cola offline en `localStorage`, descarga de informe en PDF y subida automática a Google Drive.
 
-**Nota:** `fatiga` es prototipo front-end puro — no envía datos a ningún servidor. `checklist`, `calor`, `energia-electrica` e `izaje-cargas` sí suben de verdad su informe PDF a Drive una vez configurado el puente de Apps Script (ver más abajo, es el mismo para las cuatro); mientras no esté configurado, el botón "Sincronizar" se comporta como una cola local simulada.
+### 🟠 RCO N°6 · Interacción Hombre Máquina — `/hombre-maquina`
+Cartilla de verificación de controles críticos operacionales extraída de `SSOMA-ME-RCO-06-CV-06` (versión ENE.2020), con sus tres secciones originales:
+
+1. **Requisitos de las personas** — examen de salud, evaluación psicosensotécnica y certificación de competencias del operador.
+2. **Requisitos de la organización** — plan de tránsito/lay out con su publicación y difusión, y ropa de alta visibilidad para el personal de apoyo.
+3. **Requisitos a los equipos e instalaciones** — segregación del área de operación, señalización de vías peatonales, estacionamientos fuera de línea de fuego, comunicación bidireccional señalero-operador, bloqueos y ausencia de energía en mantenciones, y parqueo con cuñas u otro dispositivo.
+
+Misma estructura que el resto de la suite: cada ítem SI/NO/N-A + Comentario + Evidencia + adjunto opcional, firma digital (con opción de indicar otro nombre/cargo de quien ejecutó la actividad), cola offline en `localStorage`, descarga de informe en PDF y subida automática a Google Drive.
+
+**Nota:** `fatiga` es prototipo front-end puro — no envía datos a ningún servidor. `checklist`, `calor`, `energia-electrica`, `izaje-cargas` y `hombre-maquina` sí suben de verdad su informe PDF a Drive una vez configurado el puente de Apps Script (ver más abajo, es el mismo para las cinco); mientras no esté configurado, el botón "Sincronizar" se comporta como una cola local simulada.
 
 ## ☁️ Subida automática a Google Drive
 
-Como estas apps no tienen backend propio, `checklist`, `calor`, `energia-electrica` e `izaje-cargas` comparten un mismo script de Google Apps Script como puente: cada app genera su informe en PDF en el navegador (con [jsPDF](https://github.com/parallax/jsPDF) + `jspdf-autotable`, incluidos localmente en el `vendor/` de cada una, sin depender de ningún CDN) y lo envía por `fetch` a ese script, que lo guarda en la carpeta de Drive indicada — con el nombre de la app en el prefijo del archivo para distinguirlos.
+Como estas apps no tienen backend propio, `checklist`, `calor`, `energia-electrica`, `izaje-cargas` y `hombre-maquina` comparten un mismo script de Google Apps Script como puente: cada app genera su informe en PDF en el navegador (con [jsPDF](https://github.com/parallax/jsPDF) + `jspdf-autotable`, incluidos localmente en el `vendor/` de cada una, sin depender de ningún CDN) y lo envía por `fetch` a ese script, que lo guarda en la carpeta de Drive indicada — con el nombre de la app en el prefijo del archivo para distinguirlos.
 
-**Configuración (una sola vez, sirve para las cuatro apps):**
+**Configuración (una sola vez, sirve para las cinco apps):**
 
 1. Abre `calor/apps-script/Code.gs` en este repo — trae instrucciones paso a paso en los comentarios.
 2. Despliega ese código como Aplicación Web en [script.google.com](https://script.google.com/) bajo tu propia cuenta de Google (la que tiene acceso a la carpeta de Drive destino).
-3. Copia la URL resultante (termina en `/exec`) y pégala en la constante `DRIVE_UPLOAD_URL` dentro de `calor/index.html`, `checklist/index.html`, `energia-electrica/index.html` **y** `izaje-cargas/index.html`.
-4. Verifica que `DRIVE_SHARED_SECRET` coincida exactamente entre las cuatro apps y `SHARED_SECRET` en `Code.gs`.
+3. Copia la URL resultante (termina en `/exec`) y pégala en la constante `DRIVE_UPLOAD_URL` dentro de `calor/index.html`, `checklist/index.html`, `energia-electrica/index.html`, `izaje-cargas/index.html` **y** `hombre-maquina/index.html`.
+4. Verifica que `DRIVE_SHARED_SECRET` coincida exactamente entre las cinco apps y `SHARED_SECRET` en `Code.gs`.
 
 **Cómo funciona en cada app:** al guardar un registro, intenta subirlo a Drive de inmediato si hay conexión; si falla o está offline, queda en la cola local ("Registros en este dispositivo") y el botón "Sincronizar" reintenta la subida de todo lo pendiente.
 
@@ -104,9 +116,9 @@ python3 -m http.server 8000
 
 - HTML + Tailwind CSS (CDN) + CSS custom (variables, tipografía Barlow Condensed / Inter / IBM Plex Mono vía Google Fonts)
 - JavaScript vanilla, sin frameworks
-- Persistencia: `localStorage` (checklist, calor, energía eléctrica e izaje de cargas)
-- Generación de PDF: [jsPDF](https://github.com/parallax/jsPDF) + `jspdf-autotable`, vendorizados en el `vendor/` de `calor`, `checklist`, `energia-electrica` e `izaje-cargas`
-- Puente a Google Drive: Google Apps Script (`calor/apps-script/Code.gs`, compartido por `calor`, `checklist`, `energia-electrica` e `izaje-cargas`)
+- Persistencia: `localStorage` (checklist, calor, energía eléctrica, izaje de cargas e interacción hombre máquina)
+- Generación de PDF: [jsPDF](https://github.com/parallax/jsPDF) + `jspdf-autotable`, vendorizados en el `vendor/` de `calor`, `checklist`, `energia-electrica`, `izaje-cargas` y `hombre-maquina`
+- Puente a Google Drive: Google Apps Script (`calor/apps-script/Code.gs`, compartido por `calor`, `checklist`, `energia-electrica`, `izaje-cargas` y `hombre-maquina`)
 
 ## Pendientes para producción
 
