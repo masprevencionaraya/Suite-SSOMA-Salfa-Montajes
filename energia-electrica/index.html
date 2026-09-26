@@ -138,6 +138,16 @@
   .link-btn{background:none;border:none;color:var(--text-faint);font-size:11px;cursor:pointer;text-decoration:underline;padding:0;}
   .link-btn:hover{color:var(--brand);}
 
+  .checkbox-toggle{display:flex;align-items:flex-start;gap:9px;font-size:12px;color:var(--text-dim);cursor:pointer;line-height:1.4;margin-bottom:0;}
+  .checkbox-toggle input[type=checkbox]{
+    appearance:none;-webkit-appearance:none;width:18px;height:18px;border:1px solid var(--line);border-radius:4px;
+    background:var(--surface);flex-shrink:0;margin-top:1px;cursor:pointer;position:relative;transition:all .15s;
+  }
+  .checkbox-toggle input[type=checkbox]:checked{background:var(--brand);border-color:var(--brand);}
+  .checkbox-toggle input[type=checkbox]:checked::after{
+    content:"✓";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:700;
+  }
+
   .btn-primary{
     width:100%;padding:15px;border:none;border-radius:8px;cursor:pointer;margin-top:18px;
     background:var(--safe);color:#08251a;font-weight:700;font-size:14px;
@@ -267,6 +277,25 @@
         <div class="sai-banner">⚠ Los incumplimientos identificados deben ser reportados al Sistema de Administración de Incidentes (SAI).</div>
 
         <div class="sig-section">
+          <div class="field-block">
+            <label class="checkbox-toggle">
+              <input type="checkbox" id="toggle-ejecutor" onchange="toggleEjecutor()">
+              <span>La actividad fue realizada por otra persona (no el responsable del área)</span>
+            </label>
+            <div id="ejecutor-fields" class="hidden" style="margin-top:12px;">
+              <div class="grid-2" style="margin-bottom:0;">
+                <div>
+                  <label class="field-label">Nombre de quien realizó la actividad</label>
+                  <input type="text" id="ejecutor-nombre" placeholder="Nombre completo">
+                </div>
+                <div>
+                  <label class="field-label">Cargo</label>
+                  <input type="text" id="ejecutor-cargo" placeholder="Ej: Electricista">
+                </div>
+              </div>
+            </div>
+          </div>
+
           <label class="field-label">Firma digital del supervisor / prevencionista</label>
           <div class="sig-frame">
             <canvas id="signature-pad"></canvas>
@@ -340,6 +369,24 @@
   function clearSignature(){
     ctx.clearRect(0,0,canvas.width,canvas.height);
     signed = false;
+  }
+
+  // ---------- Otra persona que realizó la actividad (opcional) ----------
+  function toggleEjecutor(){
+    const checked = document.getElementById('toggle-ejecutor').checked;
+    document.getElementById('ejecutor-fields').classList.toggle('hidden', !checked);
+    if(!checked){
+      document.getElementById('ejecutor-nombre').value = '';
+      document.getElementById('ejecutor-cargo').value = '';
+    }
+  }
+
+  function getEjecutor(){
+    if(!document.getElementById('toggle-ejecutor').checked) return null;
+    const nombre = document.getElementById('ejecutor-nombre').value.trim();
+    const cargo = document.getElementById('ejecutor-cargo').value.trim();
+    if(!nombre && !cargo) return null;
+    return { nombre, cargo };
   }
 
   // ---------- Datos RCO ----------
@@ -550,6 +597,7 @@
       fechaHora: document.getElementById('fecha-hora').value,
       responsable: document.getElementById('responsable').value,
       trabajo: document.getElementById('trabajo').value,
+      ejecutor: getEjecutor(),
       secciones: buildSeccionesRecord(),
       signature: canvas.toDataURL(),
       synced: false
@@ -569,6 +617,7 @@
       RCO.secciones.forEach(sec => { checkValues[sec.clave] = {}; comments[sec.clave] = {}; evidencias[sec.clave] = {}; });
       document.querySelectorAll('.seg button').forEach(b=>b.classList.remove('sel-ok','sel-bad','sel-na'));
       document.querySelectorAll('.comment-input').forEach(i=>i.value='');
+      document.getElementById('ejecutor-fields').classList.add('hidden');
       document.getElementById('fecha-hora').value = formatNow();
       updatePendingCount();
     } else {
@@ -637,6 +686,10 @@
     }).join('');
 
     const hasNo = RCO.secciones.some(sec => Object.values(checkValues[sec.clave]).includes('NO'));
+    const ejecutor = getEjecutor();
+    const ejecutorHtml = ejecutor
+      ? `<div class="pr-meta" style="margin-top:-2px;"><div style="grid-column:1 / -1;"><b>Actividad realizada por</b>${escapeHtml(ejecutor.nombre) || '—'}${ejecutor.cargo ? ' — ' + escapeHtml(ejecutor.cargo) : ''}</div></div>`
+      : '';
 
     document.getElementById('print-report').innerHTML = `
       <div class="pr-header">
@@ -656,6 +709,8 @@
       </div>
 
       ${seccionesHtml}
+
+      ${ejecutorHtml}
 
       ${hasNo
         ? '<div class="pr-verdict bad">⚠ Se detectaron incumplimientos — reportar al Sistema de Administración de Incidentes (SAI).</div>'
