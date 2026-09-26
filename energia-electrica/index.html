@@ -125,6 +125,24 @@
   .comment-input::placeholder{color:var(--text-faint);}
   .comment-input:focus{border-color:var(--brand);}
 
+  .file-input-hidden{display:none;}
+  .file-row{margin-top:8px;}
+  .file-btn{
+    display:inline-flex;align-items:center;gap:6px;background:var(--surface-2);border:1px dashed var(--line);
+    color:var(--text-faint);font-size:11px;padding:7px 10px;border-radius:6px;cursor:pointer;
+    font-family:'Inter',sans-serif;transition:border-color .15s, color .15s;
+  }
+  .file-btn:hover{border-color:var(--brand);color:var(--brand);}
+  .file-hint{font-size:9.5px;color:var(--text-faint);margin-top:4px;}
+  .file-chip{
+    display:flex;align-items:center;gap:8px;background:var(--surface-2);border:1px solid var(--line);
+    color:var(--text);font-size:11px;padding:6px 8px;border-radius:6px;
+  }
+  .file-chip .thumb{width:32px;height:32px;object-fit:cover;border-radius:4px;flex-shrink:0;}
+  .file-chip .name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .file-chip .rm-btn{background:none;border:none;color:var(--text-faint);cursor:pointer;font-size:14px;padding:0 2px;flex-shrink:0;}
+  .file-chip .rm-btn:hover{color:var(--danger);}
+
   .sai-banner{
     background:rgba(240,164,0,0.12);border:1px solid rgba(240,164,0,0.4);color:var(--caution);
     border-radius:8px;padding:12px 14px;font-size:11.5px;font-weight:600;line-height:1.5;margin:18px 0;
@@ -450,7 +468,45 @@
   const checkValues = {};
   const comments = {};
   const evidencias = {};
-  RCO.secciones.forEach(sec => { checkValues[sec.clave] = {}; comments[sec.clave] = {}; evidencias[sec.clave] = {}; });
+  const adjuntos = {};
+  RCO.secciones.forEach(sec => { checkValues[sec.clave] = {}; comments[sec.clave] = {}; evidencias[sec.clave] = {}; adjuntos[sec.clave] = {}; });
+  const fileRowResetters = [];
+
+  // ---------- Adjuntos de evidencia (foto o documento) ----------
+  const MAX_FILE_BYTES = 4 * 1024 * 1024; // 4 MB
+  const IMAGE_MAX_WIDTH = 1200;
+  const IMAGE_QUALITY = 0.72;
+
+  function fileToDataUrl(file){
+    return new Promise((resolve, reject)=>{
+      const reader = new FileReader();
+      reader.onload = ()=>resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function downscaleImage(file){
+    return new Promise((resolve, reject)=>{
+      const reader = new FileReader();
+      reader.onload = ()=>{
+        const img = new Image();
+        img.onload = ()=>{
+          const scale = Math.min(1, IMAGE_MAX_WIDTH / img.width);
+          const w = Math.max(1, Math.round(img.width * scale));
+          const h = Math.max(1, Math.round(img.height * scale));
+          const c = document.createElement('canvas');
+          c.width = w; c.height = h;
+          c.getContext('2d').drawImage(img, 0, 0, w, h);
+          resolve(c.toDataURL('image/jpeg', IMAGE_QUALITY));
+        };
+        img.onerror = reject;
+        img.src = reader.result;
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
 
   function setCheck(sectionKey, idx, value, btnEl){
     checkValues[sectionKey][idx] = value;
@@ -495,6 +551,93 @@
       evidencia.placeholder = 'Evidencia (opcional)';
       evidencia.addEventListener('input', ()=>{ evidencias[sectionKey][idx] = evidencia.value; });
       item.appendChild(evidencia);
+
+      const fileRow = document.createElement('div');
+      fileRow.className = 'file-row';
+
+      const inputId = 'file-' + sectionKey + '-' + idx;
+      const fileInput = document.createElement('input');
+      fileInput.type = 'file';
+      fileInput.id = inputId;
+      fileInput.className = 'file-input-hidden';
+      fileInput.accept = 'image/*,.pdf,.doc,.docx,.xls,.xlsx';
+
+      const slot = document.createElement('div');
+
+      function renderEmptySlot(){
+        slot.innerHTML = '';
+        const label = document.createElement('label');
+        label.className = 'file-btn';
+        label.htmlFor = inputId;
+        label.textContent = '📎 Adjuntar evidencia (foto o documento)';
+        slot.appendChild(label);
+        const hint = document.createElement('div');
+        hint.className = 'file-hint';
+        hint.textContent = 'Fotos, PDF o Word/Excel · máx. 4 MB (las fotos se comprimen automáticamente)';
+        slot.appendChild(hint);
+      }
+
+      function renderChip(adj){
+        slot.innerHTML = '';
+        const chip = document.createElement('div');
+        chip.className = 'file-chip';
+        if(adj.mime.startsWith('image/')){
+          const thumb = document.createElement('img');
+          thumb.className = 'thumb';
+          thumb.src = adj.dataUrl;
+          chip.appendChild(thumb);
+        } else {
+          const icon = document.createElement('span');
+          icon.textContent = '📄';
+          chip.appendChild(icon);
+        }
+        const name = document.createElement('span');
+        name.className = 'name';
+        name.textContent = adj.filename;
+        chip.appendChild(name);
+        const rm = document.createElement('button');
+        rm.type = 'button';
+        rm.className = 'rm-btn';
+        rm.textContent = '✕';
+        rm.addEventListener('click', ()=>{
+          delete adjuntos[sectionKey][idx];
+          fileInput.value = '';
+          renderEmptySlot();
+        });
+        chip.appendChild(rm);
+        slot.appendChild(chip);
+      }
+
+      renderEmptySlot();
+
+      fileInput.addEventListener('change', async ()=>{
+        const file = fileInput.files[0];
+        if(!file) return;
+        if(file.size > MAX_FILE_BYTES){
+          showToast('El archivo supera 4 MB. Elige uno más liviano o comprime la foto.', true);
+          fileInput.value = '';
+          return;
+        }
+        try{
+          const isImage = file.type.startsWith('image/');
+          const dataUrl = isImage ? await downscaleImage(file) : await fileToDataUrl(file);
+          adjuntos[sectionKey][idx] = { filename: file.name, mime: file.type || 'application/octet-stream', dataUrl };
+          renderChip(adjuntos[sectionKey][idx]);
+        }catch(err){
+          console.error('Error al procesar adjunto:', err);
+          showToast('No se pudo procesar el archivo adjunto.', true);
+        }
+      });
+
+      fileRowResetters.push(()=>{
+        delete adjuntos[sectionKey][idx];
+        fileInput.value = '';
+        renderEmptySlot();
+      });
+
+      fileRow.appendChild(fileInput);
+      fileRow.appendChild(slot);
+      item.appendChild(fileRow);
 
       container.appendChild(item);
     });
@@ -567,7 +710,8 @@
         item: text,
         valor: checkValues[sec.clave][idx],
         comentario: comments[sec.clave][idx] || '',
-        evidencia: evidencias[sec.clave][idx] || ''
+        evidencia: evidencias[sec.clave][idx] || '',
+        adjunto: adjuntos[sec.clave][idx] || null
       }))
     }));
   }
@@ -614,7 +758,8 @@
       showToast('✅ Inspección guardada en el dispositivo.');
       document.getElementById('checklist-form').reset();
       clearSignature();
-      RCO.secciones.forEach(sec => { checkValues[sec.clave] = {}; comments[sec.clave] = {}; evidencias[sec.clave] = {}; });
+      RCO.secciones.forEach(sec => { checkValues[sec.clave] = {}; comments[sec.clave] = {}; evidencias[sec.clave] = {}; adjuntos[sec.clave] = {}; });
+      fileRowResetters.forEach(fn=>fn());
       document.querySelectorAll('.seg button').forEach(b=>b.classList.remove('sel-ok','sel-bad','sel-na'));
       document.querySelectorAll('.comment-input').forEach(i=>i.value='');
       document.getElementById('ejecutor-fields').classList.add('hidden');
@@ -669,18 +814,28 @@
     const trabajo = document.getElementById('trabajo').value;
 
     const seccionesHtml = RCO.secciones.map(sec => {
-      const rows = sec.items.map((text, idx) => `
+      const rows = sec.items.map((text, idx) => {
+        const adj = adjuntos[sec.clave][idx];
+        let adjuntoCell = '—';
+        if(adj){
+          adjuntoCell = adj.mime.startsWith('image/')
+            ? `<img src="${adj.dataUrl}" style="width:56px;height:56px;object-fit:cover;border-radius:4px;display:block;">`
+            : `📄 ${escapeHtml(adj.filename)}`;
+        }
+        return `
         <tr>
           <td>${idx + 1}</td>
           <td>${escapeHtml(text)}</td>
           <td style="text-align:center;font-weight:700;">${checkValues[sec.clave][idx] || '—'}</td>
           <td>${escapeHtml(comments[sec.clave][idx]) || '—'}</td>
           <td>${escapeHtml(evidencias[sec.clave][idx]) || '—'}</td>
-        </tr>`).join('');
+          <td>${adjuntoCell}</td>
+        </tr>`;
+      }).join('');
       return `
         <h3>${sec.icono} ${escapeHtml(sec.titulo)}</h3>
         <table>
-          <thead><tr><th>#</th><th>Ítem</th><th>Resultado</th><th>Comentario</th><th>Evidencia</th></tr></thead>
+          <thead><tr><th>#</th><th>Ítem</th><th>Resultado</th><th>Comentario</th><th>Evidencia</th><th>Adjunto</th></tr></thead>
           <tbody>${rows}</tbody>
         </table>`;
     }).join('');
