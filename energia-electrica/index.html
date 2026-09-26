@@ -335,6 +335,8 @@
 <div class="toast" id="toast"></div>
 <div id="print-report" class="print-only"></div>
 
+<script src="vendor/jspdf.umd.min.js"></script>
+<script src="vendor/jspdf.plugin.autotable.min.js"></script>
 <script>
   // ---------- Estado de red ----------
   function updateOnlineStatus(){
@@ -699,7 +701,7 @@
 
   async function updatePendingCount(){
     const queue = await getQueue();
-    document.getElementById('pending-count').textContent = queue.length;
+    document.getElementById('pending-count').textContent = queue.filter(r => !r.synced).length;
   }
 
   function buildSeccionesRecord(){
@@ -765,6 +767,7 @@
       document.getElementById('ejecutor-fields').classList.add('hidden');
       document.getElementById('fecha-hora').value = formatNow();
       updatePendingCount();
+      attemptAutoUpload(record.id);
     } else {
       showToast('No se pudo guardar. Intenta nuevamente.', true);
     }
@@ -772,7 +775,9 @@
 
   async function syncData(){
     const queue = await getQueue();
-    if(queue.length === 0){
+    const pending = queue.filter(r => !r.synced);
+
+    if(pending.length === 0){
       showToast('No hay registros pendientes por sincronizar.');
       return;
     }
@@ -780,26 +785,204 @@
       showToast('⚠️ Sin conexión a internet. Conéctate para sincronizar.', true);
       return;
     }
+    if(!DRIVE_UPLOAD_URL){
+      showToast('⚠️ La subida automática a Drive aún no está configurada.', true);
+      return;
+    }
 
     const btn = document.getElementById('sync-btn');
     btn.disabled = true;
     btn.textContent = 'Sincronizando…';
 
-    // Simulación de envío a API backend de Salfa
-    setTimeout(async ()=>{
-      const ok = await setQueue([]);
-      btn.disabled = false;
-      btn.textContent = 'Sincronizar';
-      if(ok){
-        showToast(`🚀 Sincronización exitosa: ${queue.length} registro(s) subidos.`);
-        updatePendingCount();
-      } else {
-        showToast('Error al limpiar la cola local tras sincronizar.', true);
-      }
-    }, 900);
+    let success = 0, failed = 0, lastError = '';
+    for(const record of pending){
+      const result = await uploadRecordToDrive(record);
+      if(result && result.ok){ record.synced = true; success++; }
+      else { failed++; lastError = (result && result.error) ? String(result.error) : 'error desconocido'; }
+    }
+    await setQueue(queue.filter(r => !r.synced));
+
+    btn.disabled = false;
+    btn.textContent = 'Sincronizar';
+    updatePendingCount();
+
+    if(failed === 0){
+      showToast(`🚀 ${success} registro(s) subido(s) a Drive.`);
+    } else {
+      showToast(`⚠️ ${success} subida(s), ${failed} con error: ${lastError}`, success === 0);
+    }
   }
 
   updatePendingCount();
+
+  // ---------- Subida automática a Google Drive ----------
+  // Reutiliza el mismo puente de Apps Script ya configurado en calor/index.html.
+  const DRIVE_UPLOAD_URL = 'https://script.google.com/macros/s/AKfycbyeDCFXI_YSLIMq8rwmKVdIftke-Cj7GZkO40rQkIRr2ksqvVkYG2WH9zw0FC4Ot4rZLw/exec';
+  const DRIVE_SHARED_SECRET = '0ecca3d7af4b241d1453e171c313b8485cc7423b';
+
+  if(window.jspdf && window.jspdf.jsPDF && window.applyPlugin){
+    window.applyPlugin(window.jspdf.jsPDF);
+  }
+
+  function buildReportPdf(record){
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+    const marginX = 14;
+    let y = 16;
+
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(16); doc.setTextColor(26, 26, 26);
+    doc.text('SALFA MONTAJES', marginX, y);
+    y += 5;
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(100, 100, 100);
+    doc.text(`RCO N°${record.rco.numero} · ${record.rco.nombre} · ${record.rco.documento}`, marginX, y);
+    y += 3;
+    doc.setDrawColor(193, 39, 45); doc.setLineWidth(0.8);
+    doc.line(marginX, y, 196, y);
+    y += 8;
+
+    const metaRows = [
+      ['EMPRESA', record.empresa || '—', 'PROYECTO / OBRA', record.proyecto || '—'],
+      ['FECHA / HORA', record.fechaHora || '—', 'RESPONSABLE DEL ÁREA', record.responsable || '—']
+    ];
+    metaRows.forEach(([l1, v1, l2, v2]) => {
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5); doc.setTextColor(120, 120, 120);
+      doc.text(l1, marginX, y); doc.text(l2, 105, y);
+      y += 4.2;
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(10); doc.setTextColor(26, 26, 26);
+      doc.text(String(v1), marginX, y); doc.text(String(v2), 105, y);
+      y += 5.5;
+    });
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5); doc.setTextColor(120, 120, 120);
+    doc.text('TRABAJO A REALIZAR', marginX, y);
+    y += 4.2;
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(10); doc.setTextColor(26, 26, 26);
+    const trabajoLines = doc.splitTextToSize(record.trabajo || '—', 182);
+    doc.text(trabajoLines, marginX, y);
+    y += trabajoLines.length * 4.5 + 4;
+
+    record.secciones.forEach(sec => {
+      if(y > 260){ doc.addPage(); y = 20; }
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(11); doc.setTextColor(26, 26, 26);
+      doc.text(sec.titulo, marginX, y);
+      y += 3;
+
+      const imageRows = {};
+      sec.items.forEach((it, i) => {
+        if(it.adjunto && it.adjunto.mime.startsWith('image/')) imageRows[i] = it.adjunto.dataUrl;
+      });
+
+      doc.autoTable({
+        startY: y,
+        margin: { left: marginX, right: marginX },
+        styles: { fontSize: 7.5, cellPadding: 2, textColor: [26, 26, 26] },
+        headStyles: { fillColor: [242, 242, 242], textColor: [26, 26, 26] },
+        columnStyles: { 0: { cellWidth: 7 }, 5: { cellWidth: 20, minCellHeight: 16 } },
+        head: [['#', 'Ítem', 'Resultado', 'Comentario', 'Evidencia', 'Adjunto']],
+        body: sec.items.map((it, i) => [
+          i + 1, it.item, it.valor || '—', it.comentario || '—', it.evidencia || '—',
+          imageRows[i] ? '' : (it.adjunto ? it.adjunto.filename : '—')
+        ]),
+        didDrawCell: (data) => {
+          if(data.section === 'body' && data.column.index === 5){
+            const img = imageRows[data.row.index];
+            if(img){
+              try{
+                const pad = 1;
+                doc.addImage(img, 'JPEG', data.cell.x + pad, data.cell.y + pad, data.cell.width - pad * 2, data.cell.height - pad * 2);
+              }catch(e){}
+            }
+          }
+        }
+      });
+      y = doc.lastAutoTable.finalY + 8;
+    });
+
+    if(record.ejecutor){
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5); doc.setTextColor(120, 120, 120);
+      doc.text('ACTIVIDAD REALIZADA POR', marginX, y);
+      y += 4.2;
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(10); doc.setTextColor(26, 26, 26);
+      doc.text(`${record.ejecutor.nombre || '—'}${record.ejecutor.cargo ? ' — ' + record.ejecutor.cargo : ''}`, marginX, y);
+      y += 8;
+    }
+
+    const hasNo = record.secciones.some(sec => sec.items.some(it => it.valor === 'NO'));
+    const fillColor = hasNo ? [253, 236, 236] : [234, 250, 241];
+    const drawColor = hasNo ? [168, 31, 37] : [26, 122, 76];
+    if(y > 250){ doc.addPage(); y = 20; }
+    doc.setFillColor(fillColor[0], fillColor[1], fillColor[2]);
+    doc.setDrawColor(drawColor[0], drawColor[1], drawColor[2]);
+    doc.roundedRect(marginX, y, 182, 10, 2, 2, 'FD');
+    doc.setTextColor(drawColor[0], drawColor[1], drawColor[2]);
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(10);
+    doc.text(
+      hasNo ? 'Se detectaron incumplimientos — reportar al SAI' : 'Sin incumplimientos detectados',
+      marginX + 91, y + 6.5, { align: 'center' }
+    );
+    doc.setTextColor(26, 26, 26);
+    y += 18;
+
+    if(y > 250){ doc.addPage(); y = 20; }
+
+    try { doc.addImage(record.signature, 'PNG', marginX, y, 55, 20); } catch(e){}
+    doc.setDrawColor(150, 150, 150); doc.setLineWidth(0.2);
+    doc.line(marginX, y + 22, marginX + 55, y + 22);
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(120, 120, 120);
+    doc.text('Firma del supervisor / prevencionista', marginX, y + 26);
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(9); doc.setTextColor(26, 26, 26);
+    doc.text(record.responsable || '—', marginX + 62, y + 16);
+    doc.setFont('helvetica', 'normal');
+    doc.text(record.fechaHora || '—', marginX + 62, y + 21);
+
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5); doc.setTextColor(150, 150, 150);
+    doc.text(`Documento generado a partir de ${record.rco.documento} — Suite de Prevención Salfa Montajes.`, marginX, 289);
+
+    return doc;
+  }
+
+  async function uploadRecordToDrive(record){
+    if(!DRIVE_UPLOAD_URL) return { ok: false, error: 'not_configured' };
+    try{
+      const doc = buildReportPdf(record);
+      const dataUri = doc.output('datauristring');
+      const base64 = dataUri.split(',').pop();
+      const safeEmpresa = (record.empresa || 'SF').replace(/[^\w-]+/g, '_');
+      await fetch(DRIVE_UPLOAD_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({
+          secret: DRIVE_SHARED_SECRET,
+          filename: `RCO${record.rco.numero}-Electrica_${safeEmpresa}_${record.id}.pdf`,
+          pdfBase64: base64
+        })
+      });
+      // Apps Script no expone cabeceras CORS en su respuesta, así que en modo
+      // 'no-cors' el navegador no deja leerla (queda "opaca"). Si el fetch no
+      // lanzó una excepción, la solicitud sí llegó al servidor: lo damos por
+      // subido, aunque no podamos confirmar el resultado exacto desde aquí.
+      return { ok: true };
+    }catch(err){
+      console.error('Error al subir a Drive:', err);
+      return { ok: false, error: String(err) };
+    }
+  }
+
+  async function attemptAutoUpload(recordId){
+    if(!DRIVE_UPLOAD_URL || !navigator.onLine) return;
+    const queue = await getQueue();
+    const record = queue.find(r => r.id === recordId);
+    if(!record || record.synced) return;
+
+    const result = await uploadRecordToDrive(record);
+    if(result && result.ok){
+      const remaining = queue.filter(r => r.id !== recordId);
+      await setQueue(remaining);
+      updatePendingCount();
+      showToast('☁️ Informe subido automáticamente a Drive.');
+    }
+    // Si falla, el registro queda en la cola local para reintentar con "Sincronizar".
+  }
 
   // ---------- Informe imprimible (PDF) ----------
   function escapeHtml(str){
