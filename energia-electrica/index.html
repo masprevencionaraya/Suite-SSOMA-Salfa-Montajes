@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>SALFA MONTAJES — Contacto con Energía Eléctrica</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#12161A">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="RCO N°8 Eléctrica">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#12161A; --surface:#1B2127; --surface-2:#242C33; --line:#323C45;
+    --brand:#C1272D; --brand-gray:#9B9D9E; --danger:#C1272D; --safe:#2FB57D; --caution:#F0A400;
+    --text:#EDEFF2; --text-dim:#8C97A3; --text-faint:#5C6773;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:radial-gradient(1100px 500px at 15% -10%, rgba(193,39,45,0.09), transparent 60%), var(--bg);
+    color:var(--text); font-family:'Inter',sans-serif; min-height:100vh; -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.display{font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;letter-spacing:0.02em;}
+  .mono{font-family:'IBM Plex Mono',monospace;}
+
+  .app-shell{max-width:520px;margin:0 auto;min-height:100vh;background:var(--surface);border-left:1px solid var(--line);border-right:1px solid var(--line);}
+
+  .topbar{
+    display:flex;align-items:center;justify-content:space-between;padding:14px 18px;
+    background:linear-gradient(180deg, var(--surface-2), var(--surface));
+    border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20;
+  }
+  .brand{display:flex;align-items:center;gap:10px;}
+  .brand-mark{
+    width:34px;height:34px;border-radius:6px;
+    background:repeating-linear-gradient(45deg, var(--brand), var(--brand) 6px, #1a1a1a 6px, #1a1a1a 12px);
+    position:relative;flex-shrink:0;
+  }
+  .brand-mark::after{content:"";position:absolute;inset:5px;background:var(--surface);border-radius:3px;}
+  .brand-text .name{font-size:17px;font-weight:800;letter-spacing:0.01em;line-height:1.1;}
+  .brand-text .name .n-salfa{color:var(--brand);}
+  .brand-text .name .n-montajes{color:var(--brand-gray);}
+  .brand-text .sub{font-size:9.5px;color:var(--text-faint);letter-spacing:0.12em;text-transform:uppercase;font-family:'IBM Plex Mono',monospace;margin-top:2px;}
+
+  .net-chip{display:flex;align-items:center;gap:6px;padding:5px 11px;border-radius:20px;font-size:10.5px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;font-family:'IBM Plex Mono',monospace;}
+  .net-chip.online{background:rgba(47,181,125,0.15);color:var(--safe);border:1px solid rgba(47,181,125,0.35);}
+  .net-chip.offline{background:rgba(193,39,45,0.15);color:var(--danger);border:1px solid rgba(193,39,45,0.35);}
+  .net-dot{width:7px;height:7px;border-radius:50%;background:currentColor;}
+  .net-chip.online .net-dot{animation:blink 1.6s ease-in-out infinite;}
+  @keyframes blink{0%,100%{opacity:1;}50%{opacity:0.35;}}
+
+  main{padding:18px 18px 40px;}
+
+  .sync-panel{
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+    background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:16px;margin-bottom:18px;
+  }
+  .sync-panel .lbl{font-size:11px;color:var(--text-faint);letter-spacing:0.04em;}
+  .sync-panel .count{font-family:'IBM Plex Mono',monospace;font-size:26px;font-weight:600;color:var(--text);line-height:1.1;margin-top:2px;}
+  .sync-panel .count .unit{font-size:11px;color:var(--text-dim);font-weight:400;font-family:'Inter',sans-serif;margin-left:6px;}
+  .btn-sync{
+    background:var(--brand);color:#FFF6F5;border:none;border-radius:8px;padding:12px 18px;
+    font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;letter-spacing:0.06em;text-transform:uppercase;
+    cursor:pointer;white-space:nowrap;transition:background .15s, transform .1s;
+  }
+  .btn-sync:hover{background:#A81F25;} .btn-sync:active{transform:scale(0.97);}
+  .btn-sync:disabled{background:var(--line);color:var(--text-faint);cursor:not-allowed;}
+
+  .panel{background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:20px;}
+  .eyebrow{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--brand);letter-spacing:0.16em;text-transform:uppercase;margin-bottom:6px;display:flex;align-items:center;gap:8px;}
+  .eyebrow::before{content:"";width:16px;height:2px;background:var(--brand);display:inline-block;}
+  .panel h2{font-size:20px;margin:0 0 4px;color:var(--text);}
+  .panel .desc{font-size:12px;color:var(--text-faint);margin:0 0 18px;line-height:1.4;}
+  .panel .doc-ref{font-family:'IBM Plex Mono',monospace;font-size:9.5px;color:var(--text-faint);margin:-14px 0 18px;}
+
+  label.field-label{display:block;font-size:11.5px;color:var(--text-dim);margin-bottom:6px;font-weight:500;}
+  input[type=text]{
+    width:100%;background:var(--surface);border:1px solid var(--line);color:var(--text);
+    padding:11px 12px;border-radius:7px;font-size:14px;font-family:'IBM Plex Mono',monospace;outline:none;
+    transition:border-color .15s, box-shadow .15s;
+  }
+  input:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(193,39,45,0.15);}
+
+  textarea{
+    width:100%;background:var(--surface);border:1px solid var(--line);color:var(--text);
+    padding:11px 12px;border-radius:7px;font-size:13.5px;font-family:'Inter',sans-serif;outline:none;
+    resize:vertical;min-height:64px;transition:border-color .15s, box-shadow .15s;
+  }
+  textarea:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(193,39,45,0.15);}
+
+  .field-block{margin-bottom:18px;}
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px;}
+
+  .rco-tag{
+    display:inline-flex;align-items:center;gap:6px;background:var(--brand);color:#FFF6F5;
+    font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;letter-spacing:0.08em;
+    text-transform:uppercase;padding:4px 10px;border-radius:20px;margin-bottom:10px;
+  }
+
+  .checklist-section{border-top:1px solid var(--line);padding-top:16px;margin-top:4px;}
+  .checklist-section h3{font-size:13px;font-weight:600;color:var(--text-dim);margin:0 0 12px;text-transform:none;font-family:'Inter',sans-serif;letter-spacing:0;display:flex;align-items:center;gap:7px;}
+
+  .check-item{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px;margin-bottom:10px;}
+  .check-item .q{font-size:12.5px;color:var(--text);margin-bottom:10px;line-height:1.4;}
+  .seg{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;}
+  .seg button{
+    border:1px solid var(--line);background:var(--surface-2);color:var(--text-faint);
+    padding:8px 4px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;
+    font-family:'Barlow Condensed',sans-serif;letter-spacing:0.03em;text-transform:uppercase;transition:all .15s;
+  }
+  .seg button.sel-ok{background:rgba(47,181,125,0.18);border-color:var(--safe);color:var(--safe);}
+  .seg button.sel-bad{background:rgba(193,39,45,0.18);border-color:var(--danger);color:var(--danger);}
+  .seg button.sel-na{background:rgba(140,151,163,0.18);border-color:var(--text-dim);color:var(--text-dim);}
+
+  .comment-input{
+    width:100%;background:var(--surface-2);border:1px solid var(--line);color:var(--text);
+    padding:7px 9px;border-radius:6px;font-size:11.5px;font-family:'Inter',sans-serif;outline:none;margin-top:8px;
+  }
+  .comment-input::placeholder{color:var(--text-faint);}
+  .comment-input:focus{border-color:var(--brand);}
+
+  .sai-banner{
+    background:rgba(240,164,0,0.12);border:1px solid rgba(240,164,0,0.4);color:var(--caution);
+    border-radius:8px;padding:12px 14px;font-size:11.5px;font-weight:600;line-height:1.5;margin:18px 0;
+  }
+
+  .sig-section{border-top:1px solid var(--line);padding-top:16px;margin-top:16px;}
+  .sig-frame{background:#fff;border-radius:8px;padding:2px;}
+  #signature-pad{width:100%;height:130px;display:block;border-radius:6px;touch-action:none;}
+  .sig-actions{display:flex;justify-content:space-between;align-items:center;margin-top:8px;}
+  .sig-hint{font-size:10.5px;color:var(--text-faint);}
+  .link-btn{background:none;border:none;color:var(--text-faint);font-size:11px;cursor:pointer;text-decoration:underline;padding:0;}
+  .link-btn:hover{color:var(--brand);}
+
+  .btn-primary{
+    width:100%;padding:15px;border:none;border-radius:8px;cursor:pointer;margin-top:18px;
+    background:var(--safe);color:#08251a;font-weight:700;font-size:14px;
+    font-family:'Barlow Condensed',sans-serif;letter-spacing:0.08em;text-transform:uppercase;
+    transition:background .15s, transform .1s;
+  }
+  .btn-primary:hover{background:#3ac98e;} .btn-primary:active{transform:scale(0.99);}
+
+  .btn-secondary{
+    width:100%;padding:13px;border:1px solid var(--line);border-radius:8px;cursor:pointer;margin-top:10px;
+    background:var(--surface);color:var(--text-dim);font-weight:700;font-size:13px;
+    font-family:'Barlow Condensed',sans-serif;letter-spacing:0.06em;text-transform:uppercase;
+    transition:border-color .15s, color .15s;
+  }
+  .btn-secondary:hover{border-color:var(--brand);color:var(--brand);}
+
+  .toast{
+    position:fixed;left:50%;bottom:24px;transform:translateX(-50%);
+    background:var(--surface-2);border:1px solid var(--line);border-left:3px solid var(--safe);
+    color:var(--text);padding:12px 16px;border-radius:8px;font-size:13px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.4);z-index:50;max-width:88%;text-align:center;
+    opacity:0;pointer-events:none;transition:opacity .25s, transform .25s;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(-4px);}
+  .toast.err{border-left-color:var(--danger);}
+
+  .hidden{display:none !important;}
+
+  /* ===== Informe imprimible (PDF) ===== */
+  .print-only{display:none;}
+  @media print{
+    body{background:#fff !important;}
+    body > *:not(#print-report){display:none !important;}
+    #print-report{display:block !important;}
+    @page{margin:14mm;}
+  }
+  #print-report{
+    background:#fff;color:#1a1a1a;font-family:'Inter',sans-serif;font-size:12px;line-height:1.5;
+    -webkit-print-color-adjust:exact;print-color-adjust:exact;
+  }
+  #print-report h3{font-family:'Barlow Condensed',sans-serif;font-size:14px;margin:18px 0 8px;color:#1a1a1a;}
+  #print-report .pr-header{display:flex;align-items:center;gap:12px;border-bottom:3px solid #C1272D;padding-bottom:12px;margin-bottom:16px;}
+  #print-report .pr-mark{width:40px;height:40px;border-radius:6px;background:repeating-linear-gradient(45deg,#C1272D,#C1272D 6px,#1a1a1a 6px,#1a1a1a 12px);position:relative;flex-shrink:0;}
+  #print-report .pr-mark::after{content:"";position:absolute;inset:5px;background:#fff;border-radius:3px;}
+  #print-report .pr-title h1{font-family:'Barlow Condensed',sans-serif;font-size:20px;margin:0;text-transform:uppercase;}
+  #print-report .pr-title .sub{font-size:10px;color:#666;text-transform:uppercase;letter-spacing:0.06em;font-family:'IBM Plex Mono',monospace;}
+  #print-report .pr-meta{display:grid;grid-template-columns:1fr 1fr;gap:6px 24px;margin-bottom:10px;font-size:11.5px;}
+  #print-report .pr-meta div b{display:block;font-size:9.5px;color:#888;text-transform:uppercase;letter-spacing:0.04em;font-weight:600;margin-bottom:2px;}
+  #print-report table{width:100%;border-collapse:collapse;margin-bottom:10px;font-size:10px;}
+  #print-report th,#print-report td{border:1px solid #ccc;padding:5px 6px;text-align:left;vertical-align:top;}
+  #print-report th{background:#f2f2f2;font-size:9px;text-transform:uppercase;letter-spacing:0.02em;}
+  #print-report tr{page-break-inside:avoid;}
+  #print-report .pr-verdict{border:2px solid #1a1a1a;border-radius:6px;padding:10px 14px;font-weight:700;margin:12px 0;text-align:center;}
+  #print-report .pr-verdict.ok{border-color:#1a7a4c;color:#1a7a4c;background:#eafaf1;}
+  #print-report .pr-verdict.bad{border-color:#a81f25;color:#a81f25;background:#fdecec;}
+  #print-report .pr-sig{margin-top:20px;display:flex;gap:24px;align-items:flex-end;}
+  #print-report .pr-sig img{height:70px;border-bottom:1px solid #333;}
+  #print-report .pr-footer{margin-top:20px;font-size:9.5px;color:#999;border-top:1px solid #ddd;padding-top:8px;}
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-mark"></div>
+      <div class="brand-text">
+        <div class="name"><span class="n-salfa">SALFA</span><span class="n-montajes">MONTAJES</span></div>
+        <div class="sub">Inspección de prevención · HSE</div>
+      </div>
+    </div>
+    <div class="net-chip online" id="net-chip">
+      <span class="net-dot"></span><span id="net-text">EN LÍNEA</span>
+    </div>
+  </div>
+
+  <main>
+
+    <a class="link-btn" href="../" style="display:inline-block;margin-bottom:14px;text-decoration:none;">← Volver al inicio</a>
+
+    <!-- Cola de sincronización -->
+    <div class="sync-panel">
+      <div>
+        <div class="lbl">Registros en este dispositivo</div>
+        <div class="count"><span id="pending-count">0</span><span class="unit">pendientes</span></div>
+      </div>
+      <button class="btn-sync" id="sync-btn" onclick="syncData()">Sincronizar</button>
+    </div>
+
+    <!-- Formulario -->
+    <div class="panel">
+      <div class="rco-tag" id="rco-tag">RCO N°8</div>
+      <div class="eyebrow">Cartilla de verificación de controles críticos</div>
+      <h2 id="rco-nombre">Contacto con Energía Eléctrica</h2>
+      <p class="doc-ref">SSOMA-ME-RCO-08-CV-08 · Versión ENE.2020</p>
+      <p class="desc">Verifique en terreno si se cumplen los siguientes requisitos antes e durante trabajos con equipos y sistemas eléctricos.</p>
+
+      <form id="checklist-form" onsubmit="saveChecklist(event)">
+        <div class="grid-2">
+          <div>
+            <label class="field-label">Empresa</label>
+            <input type="text" id="empresa" required placeholder="Ej: Salfa Montajes S.A.">
+          </div>
+          <div>
+            <label class="field-label">Proyecto / obra</label>
+            <input type="text" id="proyecto" required placeholder="Ej: Planta Chancado">
+          </div>
+        </div>
+        <div class="grid-2">
+          <div>
+            <label class="field-label">Fecha / hora</label>
+            <input type="text" id="fecha-hora" required>
+          </div>
+          <div>
+            <label class="field-label">Responsable del área</label>
+            <input type="text" id="responsable" required placeholder="Nombre y cargo">
+          </div>
+        </div>
+        <div class="field-block">
+          <label class="field-label">Trabajo a realizar</label>
+          <textarea id="trabajo" required placeholder="Describa la actividad a ejecutar"></textarea>
+        </div>
+
+        <div id="secciones-container"></div>
+
+        <div class="sai-banner">⚠ Los incumplimientos identificados deben ser reportados al Sistema de Administración de Incidentes (SAI).</div>
+
+        <div class="sig-section">
+          <label class="field-label">Firma digital del supervisor / prevencionista</label>
+          <div class="sig-frame">
+            <canvas id="signature-pad"></canvas>
+          </div>
+          <div class="sig-actions">
+            <span class="sig-hint">Dibuje con el dedo o el mouse</span>
+            <button type="button" class="link-btn" onclick="clearSignature()">Limpiar firma</button>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-primary" id="submit-btn">Guardar inspección</button>
+        <button type="button" class="btn-secondary" id="pdf-btn" onclick="descargarInformePDF()">📄 Descargar informe (PDF)</button>
+      </form>
+    </div>
+
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+<div id="print-report" class="print-only"></div>
+
+<script>
+  // ---------- Estado de red ----------
+  function updateOnlineStatus(){
+    const chip = document.getElementById('net-chip');
+    const txt = document.getElementById('net-text');
+    if(navigator.onLine){
+      chip.className = 'net-chip online'; txt.textContent = 'EN LÍNEA';
+    } else {
+      chip.className = 'net-chip offline'; txt.textContent = 'MODO OFFLINE';
+    }
+  }
+  window.addEventListener('online', updateOnlineStatus);
+  window.addEventListener('offline', updateOnlineStatus);
+  updateOnlineStatus();
+
+  // ---------- Firma (canvas) ----------
+  const canvas = document.getElementById('signature-pad');
+  const ctx = canvas.getContext('2d');
+  let drawing = false;
+
+  function resizeCanvas(){
+    const ratio = Math.max(window.devicePixelRatio || 1, 1);
+    canvas.width = canvas.offsetWidth * ratio;
+    canvas.height = canvas.offsetHeight * ratio;
+    ctx.scale(ratio, ratio);
+    ctx.strokeStyle = '#000000';
+    ctx.lineWidth = 2;
+    ctx.lineCap = 'round';
+  }
+  window.addEventListener('resize', resizeCanvas);
+  setTimeout(resizeCanvas, 80);
+
+  function getPos(e){
+    const rect = canvas.getBoundingClientRect();
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    return { x: clientX - rect.left, y: clientY - rect.top };
+  }
+  canvas.addEventListener('mousedown', e=>{drawing=true; ctx.beginPath(); const p=getPos(e); ctx.moveTo(p.x,p.y);});
+  canvas.addEventListener('mousemove', e=>{if(drawing){const p=getPos(e); ctx.lineTo(p.x,p.y); ctx.stroke();}});
+  window.addEventListener('mouseup', ()=>drawing=false);
+  canvas.addEventListener('touchstart', e=>{drawing=true; ctx.beginPath(); const p=getPos(e); ctx.moveTo(p.x,p.y); e.preventDefault();});
+  canvas.addEventListener('touchmove', e=>{if(drawing){const p=getPos(e); ctx.lineTo(p.x,p.y); ctx.stroke(); e.preventDefault();}});
+  canvas.addEventListener('touchend', ()=>drawing=false);
+
+  let signed = false;
+  canvas.addEventListener('mousedown', ()=>signed=true);
+  canvas.addEventListener('touchstart', ()=>signed=true);
+
+  function clearSignature(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    signed = false;
+  }
+
+  // ---------- Datos RCO ----------
+  // Fuente: SSOMA-ME-RCO-08-CV-08 · Cartilla de Verificación de Controles Críticos Operacionales
+  const RCO = {
+    numero: 8,
+    nombre: 'Contacto con Energía Eléctrica',
+    documento: 'SSOMA-ME-RCO-08-CV-08 · Versión ENE.2020',
+    secciones: [
+      {
+        clave: 'personas',
+        icono: '👷',
+        titulo: 'Requisitos de las personas',
+        items: [
+          'El personal que interviene equipos y sistemas eléctricos cuenta con capacitación y certificación de acuerdo al nivel de tensión'
+        ]
+      },
+      {
+        clave: 'organizacion',
+        icono: '📋',
+        titulo: 'Requisitos de la organización',
+        items: [
+          'Cuentan con procedimiento para la aislación y bloqueo',
+          'Cuentan con procedimiento, instructivo y/o ART específica para trabajos con equipos energizados',
+          'Se realizó identificación de las fuentes de energía involucrada en la tarea',
+          'Están identificados los puntos de bloqueo en terreno',
+          'Los equipos a intervenir están aislados y bloqueados de acuerdo a procedimiento',
+          'Se cumple con el número de bloqueos existentes en terreno v/s los indicados en el registro',
+          'Se realiza verificación de ausencia de energía en el sistema',
+          'La energía eléctrica residual fue eliminada',
+          'Las actividades con maquinaria identifican la existencia de zonas eléctricas energizadas y respetan distancias de seguridad'
+        ]
+      },
+      {
+        clave: 'equipos',
+        icono: '🛠️',
+        titulo: 'Requisitos a los equipos e instalaciones',
+        items: [
+          'El personal utiliza elementos de protección personal dieléctricos e ignífugos de acuerdo a la actividad que desarrolla',
+          'Se verifica el estado de los elementos de protección personal dieléctricos e ignífugos',
+          'Para los trabajos en circuitos eléctricos se usa solo herramientas aisladas',
+          'Cuentan con verificación y estado de herramientas',
+          'Se cuenta con Kit de operación y rescate en sala eléctrica',
+          'Los equipos e instalaciones cuentan con protecciones eléctricas',
+          'Los equipos e instalaciones eléctricas cuentan con sistema de puesta a tierra'
+        ]
+      }
+    ]
+  };
+
+  document.getElementById('rco-tag').textContent = 'RCO N°' + RCO.numero;
+  document.getElementById('rco-nombre').textContent = RCO.nombre;
+
+  function formatNow(){
+    const now = new Date();
+    return now.toLocaleDateString('es-CL') + ' ' + now.toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit'});
+  }
+  document.getElementById('fecha-hora').value = formatNow();
+
+  // ---------- Checklist toggles (N secciones genéricas) ----------
+  const checkValues = {};
+  const comments = {};
+  const evidencias = {};
+  RCO.secciones.forEach(sec => { checkValues[sec.clave] = {}; comments[sec.clave] = {}; evidencias[sec.clave] = {}; });
+
+  function setCheck(sectionKey, idx, value, btnEl){
+    checkValues[sectionKey][idx] = value;
+    const group = btnEl.parentElement.querySelectorAll('button');
+    group.forEach(b=>b.classList.remove('sel-ok','sel-bad','sel-na'));
+    if(value==='SI') btnEl.classList.add('sel-ok');
+    else if(value==='NO') btnEl.classList.add('sel-bad');
+    else btnEl.classList.add('sel-na');
+  }
+
+  function buildChecklist(sectionKey, items, container){
+    items.forEach((text, idx)=>{
+      const item = document.createElement('div');
+      item.className = 'check-item';
+
+      const q = document.createElement('div');
+      q.className = 'q';
+      q.textContent = (idx+1) + '. ' + text;
+      item.appendChild(q);
+
+      const seg = document.createElement('div');
+      seg.className = 'seg';
+      ['SI','NO','N/A'].forEach(value=>{
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.textContent = value;
+        btn.addEventListener('click', ()=>setCheck(sectionKey, idx, value, btn));
+        seg.appendChild(btn);
+      });
+      item.appendChild(seg);
+
+      const comment = document.createElement('input');
+      comment.type = 'text';
+      comment.className = 'comment-input';
+      comment.placeholder = 'Comentario (opcional)';
+      comment.addEventListener('input', ()=>{ comments[sectionKey][idx] = comment.value; });
+      item.appendChild(comment);
+
+      const evidencia = document.createElement('input');
+      evidencia.type = 'text';
+      evidencia.className = 'comment-input';
+      evidencia.placeholder = 'Evidencia (opcional)';
+      evidencia.addEventListener('input', ()=>{ evidencias[sectionKey][idx] = evidencia.value; });
+      item.appendChild(evidencia);
+
+      container.appendChild(item);
+    });
+  }
+
+  const seccionesContainer = document.getElementById('secciones-container');
+  RCO.secciones.forEach(sec=>{
+    const wrap = document.createElement('div');
+    wrap.className = 'checklist-section';
+    const h3 = document.createElement('h3');
+    h3.innerHTML = `<span>${sec.icono}</span> ${sec.titulo} — ¿se cumple?`;
+    wrap.appendChild(h3);
+    const list = document.createElement('div');
+    wrap.appendChild(list);
+    seccionesContainer.appendChild(wrap);
+    buildChecklist(sec.clave, sec.items, list);
+  });
+
+  function allAnswered(values, count){
+    for(let i=0;i<count;i++){ if(!values[i]) return false; }
+    return true;
+  }
+  function allSectionsAnswered(){
+    return RCO.secciones.every(sec => allAnswered(checkValues[sec.clave], sec.items.length));
+  }
+
+  // ---------- Toast ----------
+  let toastTimer;
+  function showToast(msg, isErr=false){
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast show' + (isErr ? ' err' : '');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(()=>t.classList.remove('show'), 2600);
+  }
+
+  // ---------- Almacenamiento persistente (cola offline) ----------
+  const STORAGE_KEY = 'salfa_energia_electrica_pending';
+
+  async function getQueue(){
+    try{
+      const raw = localStorage.getItem(STORAGE_KEY);
+      return raw ? JSON.parse(raw) : [];
+    }catch(err){
+      console.error('Error al leer almacenamiento local:', err);
+      return [];
+    }
+  }
+
+  async function setQueue(queue){
+    try{
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(queue));
+      return true;
+    }catch(err){
+      console.error('Error al guardar en almacenamiento local:', err);
+      return false;
+    }
+  }
+
+  async function updatePendingCount(){
+    const queue = await getQueue();
+    document.getElementById('pending-count').textContent = queue.length;
+  }
+
+  function buildSeccionesRecord(){
+    return RCO.secciones.map(sec => ({
+      clave: sec.clave,
+      titulo: sec.titulo,
+      items: sec.items.map((text, idx) => ({
+        item: text,
+        valor: checkValues[sec.clave][idx],
+        comentario: comments[sec.clave][idx] || '',
+        evidencia: evidencias[sec.clave][idx] || ''
+      }))
+    }));
+  }
+
+  async function saveChecklist(e){
+    e.preventDefault();
+
+    if(!allSectionsAnswered()){
+      showToast('Responde todos los puntos de la cartilla antes de guardar.', true);
+      return;
+    }
+    if(!signed){
+      showToast('Falta la firma del supervisor / prevencionista.', true);
+      return;
+    }
+
+    const submitBtn = document.getElementById('submit-btn');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Guardando…';
+
+    const record = {
+      id: 'RCO' + RCO.numero + '-' + Date.now(),
+      rco: { numero: RCO.numero, nombre: RCO.nombre, documento: RCO.documento },
+      timestamp: new Date().toISOString(),
+      empresa: document.getElementById('empresa').value,
+      proyecto: document.getElementById('proyecto').value,
+      fechaHora: document.getElementById('fecha-hora').value,
+      responsable: document.getElementById('responsable').value,
+      trabajo: document.getElementById('trabajo').value,
+      secciones: buildSeccionesRecord(),
+      signature: canvas.toDataURL(),
+      synced: false
+    };
+
+    const queue = await getQueue();
+    queue.push(record);
+    const ok = await setQueue(queue);
+
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Guardar inspección';
+
+    if(ok){
+      showToast('✅ Inspección guardada en el dispositivo.');
+      document.getElementById('checklist-form').reset();
+      clearSignature();
+      RCO.secciones.forEach(sec => { checkValues[sec.clave] = {}; comments[sec.clave] = {}; evidencias[sec.clave] = {}; });
+      document.querySelectorAll('.seg button').forEach(b=>b.classList.remove('sel-ok','sel-bad','sel-na'));
+      document.querySelectorAll('.comment-input').forEach(i=>i.value='');
+      document.getElementById('fecha-hora').value = formatNow();
+      updatePendingCount();
+    } else {
+      showToast('No se pudo guardar. Intenta nuevamente.', true);
+    }
+  }
+
+  async function syncData(){
+    const queue = await getQueue();
+    if(queue.length === 0){
+      showToast('No hay registros pendientes por sincronizar.');
+      return;
+    }
+    if(!navigator.onLine){
+      showToast('⚠️ Sin conexión a internet. Conéctate para sincronizar.', true);
+      return;
+    }
+
+    const btn = document.getElementById('sync-btn');
+    btn.disabled = true;
+    btn.textContent = 'Sincronizando…';
+
+    // Simulación de envío a API backend de Salfa
+    setTimeout(async ()=>{
+      const ok = await setQueue([]);
+      btn.disabled = false;
+      btn.textContent = 'Sincronizar';
+      if(ok){
+        showToast(`🚀 Sincronización exitosa: ${queue.length} registro(s) subidos.`);
+        updatePendingCount();
+      } else {
+        showToast('Error al limpiar la cola local tras sincronizar.', true);
+      }
+    }, 900);
+  }
+
+  updatePendingCount();
+
+  // ---------- Informe imprimible (PDF) ----------
+  function escapeHtml(str){
+    return String(str ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  function buildPrintReport(){
+    const empresa = document.getElementById('empresa').value;
+    const proyecto = document.getElementById('proyecto').value;
+    const fechaHora = document.getElementById('fecha-hora').value;
+    const responsable = document.getElementById('responsable').value;
+    const trabajo = document.getElementById('trabajo').value;
+
+    const seccionesHtml = RCO.secciones.map(sec => {
+      const rows = sec.items.map((text, idx) => `
+        <tr>
+          <td>${idx + 1}</td>
+          <td>${escapeHtml(text)}</td>
+          <td style="text-align:center;font-weight:700;">${checkValues[sec.clave][idx] || '—'}</td>
+          <td>${escapeHtml(comments[sec.clave][idx]) || '—'}</td>
+          <td>${escapeHtml(evidencias[sec.clave][idx]) || '—'}</td>
+        </tr>`).join('');
+      return `
+        <h3>${sec.icono} ${escapeHtml(sec.titulo)}</h3>
+        <table>
+          <thead><tr><th>#</th><th>Ítem</th><th>Resultado</th><th>Comentario</th><th>Evidencia</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>`;
+    }).join('');
+
+    const hasNo = RCO.secciones.some(sec => Object.values(checkValues[sec.clave]).includes('NO'));
+
+    document.getElementById('print-report').innerHTML = `
+      <div class="pr-header">
+        <div class="pr-mark"></div>
+        <div class="pr-title">
+          <h1>Salfa Montajes</h1>
+          <div class="sub">RCO N°${RCO.numero} · ${escapeHtml(RCO.nombre)} · ${escapeHtml(RCO.documento)}</div>
+        </div>
+      </div>
+      <div class="pr-meta">
+        <div><b>Empresa</b>${escapeHtml(empresa) || '—'}</div>
+        <div><b>Proyecto / obra</b>${escapeHtml(proyecto) || '—'}</div>
+        <div><b>Fecha / hora</b>${escapeHtml(fechaHora) || '—'}</div>
+        <div><b>Responsable del área</b>${escapeHtml(responsable) || '—'}</div>
+        <div style="grid-column:1 / -1;"><b>Trabajo a realizar</b>${escapeHtml(trabajo) || '—'}</div>
+        <div><b>Generado</b>${new Date().toLocaleString('es-CL')}</div>
+      </div>
+
+      ${seccionesHtml}
+
+      ${hasNo
+        ? '<div class="pr-verdict bad">⚠ Se detectaron incumplimientos — reportar al Sistema de Administración de Incidentes (SAI).</div>'
+        : '<div class="pr-verdict ok">✅ Sin incumplimientos detectados.</div>'}
+
+      <div class="pr-sig">
+        <div>
+          <img src="${canvas.toDataURL('image/png')}" alt="Firma">
+          <div style="font-size:10px;color:#888;margin-top:2px;">Firma del supervisor / prevencionista</div>
+        </div>
+        <div style="font-size:11px;">
+          <div><b>${escapeHtml(responsable) || '—'}</b></div>
+          <div>${escapeHtml(fechaHora) || '—'}</div>
+        </div>
+      </div>
+
+      <div class="pr-footer">Documento generado a partir de ${escapeHtml(RCO.documento)} — Suite de Prevención Salfa Montajes.</div>
+    `;
+  }
+
+  function descargarInformePDF(){
+    if(!allSectionsAnswered()){
+      showToast('Responde todos los puntos de la cartilla antes de generar el informe.', true);
+      return;
+    }
+    if(!signed){
+      showToast('Falta la firma del supervisor / prevencionista.', true);
+      return;
+    }
+    buildPrintReport();
+    window.print();
+  }
+</script>
+</body>
+</html>

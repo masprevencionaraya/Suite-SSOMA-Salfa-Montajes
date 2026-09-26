@@ -1,21 +1,23 @@
 # Salfa · Suite de Prevención
 
-Tres aplicaciones web independientes (sin backend, sin build step) para prevención de riesgos en terreno.
+Cuatro aplicaciones web independientes (sin backend, sin build step) para prevención de riesgos en terreno.
 
 ## Estructura
 
 ```
 salfa-prevencion/
-├── index.html              # Página de inicio, enlaza a las tres apps
+├── index.html              # Página de inicio, enlaza a las cuatro apps
 ├── fatiga/
 │   └── index.html          # Turno·Seguro — control de fatiga y test de reacción
 ├── checklist/
 │   └── index.html          # HSE Montajes — checklist pre-uso con firma digital
-└── calor/
-    ├── index.html          # Bitácora de exposición ocupacional a calor (D.S. 594)
-    ├── vendor/              # jsPDF + jspdf-autotable (vendorizados, sin CDN)
-    └── apps-script/
-        └── Code.gs          # Puente Apps Script: recibe el PDF y lo guarda en Drive
+├── calor/
+│   ├── index.html          # Bitácora de exposición ocupacional a calor (D.S. 594)
+│   ├── vendor/              # jsPDF + jspdf-autotable (vendorizados, sin CDN)
+│   └── apps-script/
+│       └── Code.gs          # Puente Apps Script: recibe el PDF y lo guarda en Drive
+└── energia-electrica/
+    └── index.html          # RCO N°8 — Contacto con Energía Eléctrica
 ```
 
 ## Apps
@@ -36,7 +38,16 @@ Bitácora técnica paso a paso para la evaluación de exposición ocupacional a 
 
 Incluye además tablas de referencia colapsables (Costo Energético según Tipo de Trabajo y Valores Límites Permisibles del Índice TGBH) para consultar mientras se completa la bitácora, un botón para descargar cada bitácora como informe en PDF (vía el diálogo de impresión del navegador), y subida automática del PDF a una carpeta de Google Drive — ver [Subida automática a Google Drive](#☁️-subida-automática-a-google-drive-bitácora-de-calor) más abajo.
 
-**Nota:** `checklist` y `fatiga` son prototipos front-end — ninguna envía datos a un servidor real; el botón "Sincronizar" del checklist simula el envío y vacía la cola local. `calor` sí sube de verdad su informe PDF a Drive una vez configurado el puente de Apps Script (ver más abajo); mientras no esté configurado, se comporta igual que el checklist (cola local simulada).
+### 🟣 RCO N°8 · Energía Eléctrica — `/energia-electrica`
+Cartilla de verificación de controles críticos operacionales extraída de `SSOMA-ME-RCO-08-CV-08` (versión ENE.2020), con sus tres secciones originales:
+
+1. **Requisitos de las personas** — capacitación y certificación según nivel de tensión.
+2. **Requisitos de la organización** — procedimientos de aislación/bloqueo, identificación de fuentes de energía, verificación de ausencia de energía, etc.
+3. **Requisitos a los equipos e instalaciones** — EPP dieléctrico, herramientas aisladas, puesta a tierra, kit de rescate en sala eléctrica.
+
+Cada ítem se responde SI/NO/N-A y admite **Comentario** y **Evidencia** por separado (tal como en la cartilla original). Misma firma digital, cola offline en `localStorage` y descarga de informe en PDF que el resto de la suite.
+
+**Nota:** `checklist`, `fatiga` y `energia-electrica` son prototipos front-end — ninguna envía datos a un servidor real; el botón "Sincronizar" simula el envío y vacía la cola local. `calor` sí sube de verdad su informe PDF a Drive una vez configurado el puente de Apps Script (ver más abajo); mientras no esté configurado, se comporta igual que las demás (cola local simulada).
 
 ## ☁️ Subida automática a Google Drive (bitácora de calor)
 
@@ -77,7 +88,7 @@ python3 -m http.server 8000
 
 - HTML + Tailwind CSS (CDN) + CSS custom (variables, tipografía Barlow Condensed / Inter / IBM Plex Mono vía Google Fonts)
 - JavaScript vanilla, sin frameworks
-- Persistencia: `localStorage` (checklist y calor)
+- Persistencia: `localStorage` (checklist, calor y energía eléctrica)
 - Generación de PDF: [jsPDF](https://github.com/parallax/jsPDF) + `jspdf-autotable`, vendorizados en `calor/vendor/` (solo la bitácora de calor)
 - Puente a Google Drive: Google Apps Script (`calor/apps-script/Code.gs`)
 
