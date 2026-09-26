@@ -94,6 +94,7 @@
   input:focus,select:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(193,39,45,0.15);}
   input::placeholder{color:var(--text-faint);}
 
+  .hidden{display:none !important;}
   .field-block{margin-bottom:14px;}
   .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
   .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
@@ -283,7 +284,14 @@
           </div>
           <div class="field-block">
             <label class="field-label">Faena / proyecto</label>
-            <input type="text" id="proyecto" required placeholder="Ej: Planta Chancado">
+            <select id="proyecto" required onchange="toggleProyectoOtro()">
+              <option value="" disabled selected>Selecciona un proyecto</option>
+              <option value="CC-141">CC-141</option>
+              <option value="CC-146">CC-146</option>
+              <option value="CC-126">CC-126</option>
+              <option value="otro">Otro (ingresar manualmente)</option>
+            </select>
+            <input type="text" id="proyecto-otro" class="hidden" placeholder="Escribe el código del proyecto" style="margin-top:8px;">
           </div>
         </div>
         <div class="grid-2">
@@ -432,6 +440,21 @@
     return now.toLocaleDateString('es-CL') + ' ' + now.toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit'});
   }
   document.getElementById('fecha-hora').value = formatNow();
+
+  function toggleProyectoOtro(){
+    const sel = document.getElementById('proyecto');
+    const otro = document.getElementById('proyecto-otro');
+    const isOtro = sel.value === 'otro';
+    otro.classList.toggle('hidden', !isOtro);
+    otro.required = isOtro;
+    if(isOtro) otro.focus(); else otro.value = '';
+  }
+
+  function getProyectoValue(){
+    const sel = document.getElementById('proyecto');
+    if(sel.value === 'otro') return document.getElementById('proyecto-otro').value.trim();
+    return sel.value;
+  }
 
   // ---------- Datos de referencia (D.S. 594) ----------
   const COSTO_ENERGETICO = [
@@ -826,7 +849,7 @@
       id: 'CALOR-' + Date.now(),
       timestamp: new Date().toISOString(),
       empresa: document.getElementById('empresa').value,
-      proyecto: document.getElementById('proyecto').value,
+      proyecto: getProyectoValue(),
       area: document.getElementById('area').value,
       evaluador: document.getElementById('evaluador').value,
       fechaHora: document.getElementById('fecha-hora').value,
@@ -1084,7 +1107,7 @@
 
   function buildPrintReport(){
     const empresa = document.getElementById('empresa').value;
-    const proyecto = document.getElementById('proyecto').value;
+    const proyecto = getProyectoValue();
     const area = document.getElementById('area').value;
     const evaluador = document.getElementById('evaluador').value;
     const fechaHora = document.getElementById('fecha-hora').value;
