@@ -1,12 +1,12 @@
 # Salfa · Suite de Prevención
 
-Seis aplicaciones web independientes (sin backend, sin build step) para prevención de riesgos en terreno.
+Siete aplicaciones web independientes (sin backend, sin build step) para prevención de riesgos en terreno.
 
 ## Estructura
 
 ```
 salfa-prevencion/
-├── index.html              # Página de inicio, enlaza a las seis apps
+├── index.html              # Página de inicio, enlaza a las siete apps
 ├── fatiga/
 │   └── index.html          # Turno·Seguro — control de fatiga y test de reacción
 ├── checklist/
@@ -23,8 +23,11 @@ salfa-prevencion/
 ├── izaje-cargas/
 │   ├── index.html          # RCO N°3 — Caída de Carga Suspendida en Maniobras de Izaje
 │   └── vendor/              # jsPDF + jspdf-autotable (vendorizados, sin CDN)
-└── hombre-maquina/
-    ├── index.html          # RCO N°6 — Interacción Hombre Máquina
+├── hombre-maquina/
+│   ├── index.html          # RCO N°6 — Interacción Hombre Máquina
+│   └── vendor/              # jsPDF + jspdf-autotable (vendorizados, sin CDN)
+└── gestion-sitio/
+    ├── index.html          # Check List Gestión del Sitio (SSOMA, orden y aseo)
     └── vendor/              # jsPDF + jspdf-autotable (vendorizados, sin CDN)
 ```
 
@@ -74,6 +77,13 @@ Cartilla de verificación de controles críticos operacionales extraída de `SSO
 3. **Requisitos a los equipos e instalaciones** — segregación del área de operación, señalización de vías peatonales, estacionamientos fuera de línea de fuego, comunicación bidireccional señalero-operador, bloqueos y ausencia de energía en mantenciones, y parqueo con cuñas u otro dispositivo.
 
 Misma estructura que el resto de la suite: cada ítem SI/NO/N-A + Comentario + Evidencia + adjunto opcional, firma digital (con opción de indicar otro nombre/cargo de quien ejecutó la actividad), cola offline en `localStorage`, descarga de informe en PDF y subida automática a Google Drive.
+
+### 🧹 Check List Gestión del Sitio — `/gestion-sitio`
+Versión digital del formulario SSOMA "Check List Gestión del Sitio" (hoja *Orden y Aseo*, REV 0 · 20/01/2021), con el mismo diseño y estructura que las cartillas RCO. Cabecera con **Obra o contrato** (misma lista desplegable con opción manual) y **Área**, y los 17 elementos originales a inspeccionar (iluminación, extintores, pasillos, vías de tránsito, residuos, acopio, baños químicos, señalización, sustancias peligrosas, bandejas antiderrame, letrero de responsable del área, etc.).
+
+Cada ítem se responde SI/NO/N-A con Comentario, Evidencia y adjunto opcional. Al marcar **NO** se despliega la **acción correctiva** con *Responsable ejecución* y *Fecha* (columnas del formulario original), obligatorias para guardar. Muestra el avance y el **% de cumplimiento** (SI / (SI + NO)), tiene campo de **Observaciones** y dos firmas como en el papel: **Realizó** (nombre, cargo y firma, obligatoria) y **Revisó** (opcional). Cola offline en `localStorage` (`salfa_gestion_sitio_pending`) y descarga de informe en PDF.
+
+**Subida a Drive:** el código está listo, pero `DRIVE_UPLOAD_URL` y `DRIVE_SHARED_SECRET` quedaron vacíos en `gestion-sitio/index.html`; para activarla basta copiar ahí los mismos valores que usan las otras apps.
 
 **Nota:** `fatiga` es prototipo front-end puro — no envía datos a ningún servidor. `checklist`, `calor`, `energia-electrica`, `izaje-cargas` y `hombre-maquina` sí suben de verdad su informe PDF a Drive una vez configurado el puente de Apps Script (ver más abajo, es el mismo para las cinco); mientras no esté configurado, el botón "Sincronizar" se comporta como una cola local simulada.
 

@@ -1,0 +1,1151 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>SALFA MONTAJES — Check List Gestión del Sitio</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#12161A">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Gestión Sitio">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#12161A; --surface:#1B2127; --surface-2:#242C33; --line:#323C45;
+    --brand:#C1272D; --brand-gray:#9B9D9E; --danger:#C1272D; --safe:#2FB57D; --caution:#F0A400;
+    --text:#EDEFF2; --text-dim:#8C97A3; --text-faint:#5C6773;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:radial-gradient(1100px 500px at 15% -10%, rgba(193,39,45,0.09), transparent 60%), var(--bg);
+    color:var(--text); font-family:'Inter',sans-serif; min-height:100vh; -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.display{font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;letter-spacing:0.02em;}
+  .mono{font-family:'IBM Plex Mono',monospace;}
+
+  .app-shell{max-width:520px;margin:0 auto;min-height:100vh;background:var(--surface);border-left:1px solid var(--line);border-right:1px solid var(--line);}
+
+  .topbar{
+    display:flex;align-items:center;justify-content:space-between;padding:14px 18px;
+    background:linear-gradient(180deg, var(--surface-2), var(--surface));
+    border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20;
+  }
+  .brand{display:flex;align-items:center;gap:10px;}
+  .brand-mark{
+    width:34px;height:34px;border-radius:6px;
+    background:repeating-linear-gradient(45deg, var(--brand), var(--brand) 6px, #1a1a1a 6px, #1a1a1a 12px);
+    position:relative;flex-shrink:0;
+  }
+  .brand-mark::after{content:"";position:absolute;inset:5px;background:var(--surface);border-radius:3px;}
+  .brand-text .name{font-size:17px;font-weight:800;letter-spacing:0.01em;line-height:1.1;}
+  .brand-text .name .n-salfa{color:var(--brand);}
+  .brand-text .name .n-montajes{color:var(--brand-gray);}
+  .brand-text .sub{font-size:9.5px;color:var(--text-faint);letter-spacing:0.12em;text-transform:uppercase;font-family:'IBM Plex Mono',monospace;margin-top:2px;}
+
+  .net-chip{display:flex;align-items:center;gap:6px;padding:5px 11px;border-radius:20px;font-size:10.5px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;font-family:'IBM Plex Mono',monospace;}
+  .net-chip.online{background:rgba(47,181,125,0.15);color:var(--safe);border:1px solid rgba(47,181,125,0.35);}
+  .net-chip.offline{background:rgba(193,39,45,0.15);color:var(--danger);border:1px solid rgba(193,39,45,0.35);}
+  .net-dot{width:7px;height:7px;border-radius:50%;background:currentColor;}
+  .net-chip.online .net-dot{animation:blink 1.6s ease-in-out infinite;}
+  @keyframes blink{0%,100%{opacity:1;}50%{opacity:0.35;}}
+
+  main{padding:18px 18px 40px;}
+
+  .sync-panel{
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+    background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:16px;margin-bottom:18px;
+  }
+  .sync-panel .lbl{font-size:11px;color:var(--text-faint);letter-spacing:0.04em;}
+  .sync-panel .count{font-family:'IBM Plex Mono',monospace;font-size:26px;font-weight:600;color:var(--text);line-height:1.1;margin-top:2px;}
+  .sync-panel .count .unit{font-size:11px;color:var(--text-dim);font-weight:400;font-family:'Inter',sans-serif;margin-left:6px;}
+  .btn-sync{
+    background:var(--brand);color:#FFF6F5;border:none;border-radius:8px;padding:12px 18px;
+    font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;letter-spacing:0.06em;text-transform:uppercase;
+    cursor:pointer;white-space:nowrap;transition:background .15s, transform .1s;
+  }
+  .btn-sync:hover{background:#A81F25;} .btn-sync:active{transform:scale(0.97);}
+  .btn-sync:disabled{background:var(--line);color:var(--text-faint);cursor:not-allowed;}
+
+  .panel{background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:20px;}
+  .eyebrow{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--brand);letter-spacing:0.16em;text-transform:uppercase;margin-bottom:6px;display:flex;align-items:center;gap:8px;}
+  .eyebrow::before{content:"";width:16px;height:2px;background:var(--brand);display:inline-block;}
+  .panel h2{font-size:20px;margin:0 0 4px;color:var(--text);}
+  .panel .desc{font-size:12px;color:var(--text-faint);margin:0 0 18px;line-height:1.4;}
+  .panel .doc-ref{font-family:'IBM Plex Mono',monospace;font-size:9.5px;color:var(--text-faint);margin:-14px 0 18px;}
+
+  label.field-label{display:block;font-size:11.5px;color:var(--text-dim);margin-bottom:6px;font-weight:500;}
+  input[type=text],select{
+    width:100%;background:var(--surface);border:1px solid var(--line);color:var(--text);
+    padding:11px 12px;border-radius:7px;font-size:14px;font-family:'IBM Plex Mono',monospace;outline:none;
+    transition:border-color .15s, box-shadow .15s; appearance:none;
+  }
+  select{font-family:'Inter',sans-serif;font-size:13.5px;}
+  input:focus,select:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(193,39,45,0.15);}
+
+  textarea{
+    width:100%;background:var(--surface);border:1px solid var(--line);color:var(--text);
+    padding:11px 12px;border-radius:7px;font-size:13.5px;font-family:'Inter',sans-serif;outline:none;
+    resize:vertical;min-height:64px;transition:border-color .15s, box-shadow .15s;
+  }
+  textarea:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(193,39,45,0.15);}
+
+  .field-block{margin-bottom:18px;}
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px;}
+
+  .rco-tag{
+    display:inline-flex;align-items:center;gap:6px;background:var(--brand);color:#FFF6F5;
+    font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;letter-spacing:0.08em;
+    text-transform:uppercase;padding:4px 10px;border-radius:20px;margin-bottom:10px;
+  }
+
+  .checklist-section{border-top:1px solid var(--line);padding-top:16px;margin-top:4px;}
+  .checklist-section h3{font-size:13px;font-weight:600;color:var(--text-dim);margin:0 0 12px;text-transform:none;font-family:'Inter',sans-serif;letter-spacing:0;display:flex;align-items:center;gap:7px;}
+
+  .check-item{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px;margin-bottom:10px;}
+  .check-item .q{font-size:12.5px;color:var(--text);margin-bottom:10px;line-height:1.4;}
+  .seg{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;}
+  .seg button{
+    border:1px solid var(--line);background:var(--surface-2);color:var(--text-faint);
+    padding:8px 4px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;
+    font-family:'Barlow Condensed',sans-serif;letter-spacing:0.03em;text-transform:uppercase;transition:all .15s;
+  }
+  .seg button.sel-ok{background:rgba(47,181,125,0.18);border-color:var(--safe);color:var(--safe);}
+  .seg button.sel-bad{background:rgba(193,39,45,0.18);border-color:var(--danger);color:var(--danger);}
+  .seg button.sel-na{background:rgba(140,151,163,0.18);border-color:var(--text-dim);color:var(--text-dim);}
+
+  .comment-input{
+    width:100%;background:var(--surface-2);border:1px solid var(--line);color:var(--text);
+    padding:7px 9px;border-radius:6px;font-size:11.5px;font-family:'Inter',sans-serif;outline:none;margin-top:8px;
+  }
+  .comment-input::placeholder{color:var(--text-faint);}
+  .comment-input:focus{border-color:var(--brand);}
+
+  .file-input-hidden{display:none;}
+  .file-row{margin-top:8px;}
+  .file-btn{
+    display:inline-flex;align-items:center;gap:6px;background:var(--surface-2);border:1px dashed var(--line);
+    color:var(--text-faint);font-size:11px;padding:7px 10px;border-radius:6px;cursor:pointer;
+    font-family:'Inter',sans-serif;transition:border-color .15s, color .15s;
+  }
+  .file-btn:hover{border-color:var(--brand);color:var(--brand);}
+  .file-hint{font-size:9.5px;color:var(--text-faint);margin-top:4px;}
+  .file-chip{
+    display:flex;align-items:center;gap:8px;background:var(--surface-2);border:1px solid var(--line);
+    color:var(--text);font-size:11px;padding:6px 8px;border-radius:6px;
+  }
+  .file-chip .thumb{width:32px;height:32px;object-fit:cover;border-radius:4px;flex-shrink:0;}
+  .file-chip .name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .file-chip .rm-btn{background:none;border:none;color:var(--text-faint);cursor:pointer;font-size:14px;padding:0 2px;flex-shrink:0;}
+  .file-chip .rm-btn:hover{color:var(--danger);}
+
+  .sai-banner{
+    background:rgba(240,164,0,0.12);border:1px solid rgba(240,164,0,0.4);color:var(--caution);
+    border-radius:8px;padding:12px 14px;font-size:11.5px;font-weight:600;line-height:1.5;margin:18px 0;
+  }
+
+  .sig-section{border-top:1px solid var(--line);padding-top:16px;margin-top:16px;}
+  .sig-frame{background:#fff;border-radius:8px;padding:2px;}
+  #signature-pad{width:100%;height:130px;display:block;border-radius:6px;touch-action:none;}
+  .sig-actions{display:flex;justify-content:space-between;align-items:center;margin-top:8px;}
+  .sig-hint{font-size:10.5px;color:var(--text-faint);}
+  .link-btn{background:none;border:none;color:var(--text-faint);font-size:11px;cursor:pointer;text-decoration:underline;padding:0;}
+  .link-btn:hover{color:var(--brand);}
+
+  .checkbox-toggle{display:flex;align-items:flex-start;gap:9px;font-size:12px;color:var(--text-dim);cursor:pointer;line-height:1.4;margin-bottom:0;}
+  .checkbox-toggle input[type=checkbox]{
+    appearance:none;-webkit-appearance:none;width:18px;height:18px;border:1px solid var(--line);border-radius:4px;
+    background:var(--surface);flex-shrink:0;margin-top:1px;cursor:pointer;position:relative;transition:all .15s;
+  }
+  .checkbox-toggle input[type=checkbox]:checked{background:var(--brand);border-color:var(--brand);}
+  .checkbox-toggle input[type=checkbox]:checked::after{
+    content:"✓";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:700;
+  }
+
+  .btn-primary{
+    width:100%;padding:15px;border:none;border-radius:8px;cursor:pointer;margin-top:18px;
+    background:var(--safe);color:#08251a;font-weight:700;font-size:14px;
+    font-family:'Barlow Condensed',sans-serif;letter-spacing:0.08em;text-transform:uppercase;
+    transition:background .15s, transform .1s;
+  }
+  .btn-primary:hover{background:#3ac98e;} .btn-primary:active{transform:scale(0.99);}
+
+  .btn-secondary{
+    width:100%;padding:13px;border:1px solid var(--line);border-radius:8px;cursor:pointer;margin-top:10px;
+    background:var(--surface);color:var(--text-dim);font-weight:700;font-size:13px;
+    font-family:'Barlow Condensed',sans-serif;letter-spacing:0.06em;text-transform:uppercase;
+    transition:border-color .15s, color .15s;
+  }
+  .btn-secondary:hover{border-color:var(--brand);color:var(--brand);}
+
+  .toast{
+    position:fixed;left:50%;bottom:24px;transform:translateX(-50%);
+    background:var(--surface-2);border:1px solid var(--line);border-left:3px solid var(--safe);
+    color:var(--text);padding:12px 16px;border-radius:8px;font-size:13px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.4);z-index:50;max-width:88%;text-align:center;
+    opacity:0;pointer-events:none;transition:opacity .25s, transform .25s;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(-4px);}
+  .toast.err{border-left-color:var(--danger);}
+
+  .hidden{display:none !important;}
+
+  /* ===== Informe imprimible (PDF) ===== */
+  .print-only{display:none;}
+  @media print{
+    body{background:#fff !important;}
+    body > *:not(#print-report){display:none !important;}
+    #print-report{display:block !important;}
+    @page{margin:14mm;}
+  }
+  #print-report{
+    background:#fff;color:#1a1a1a;font-family:'Inter',sans-serif;font-size:12px;line-height:1.5;
+    -webkit-print-color-adjust:exact;print-color-adjust:exact;
+  }
+  #print-report h3{font-family:'Barlow Condensed',sans-serif;font-size:14px;margin:18px 0 8px;color:#1a1a1a;}
+  #print-report .pr-header{display:flex;align-items:center;gap:12px;border-bottom:3px solid #C1272D;padding-bottom:12px;margin-bottom:16px;}
+  #print-report .pr-mark{width:40px;height:40px;border-radius:6px;background:repeating-linear-gradient(45deg,#C1272D,#C1272D 6px,#1a1a1a 6px,#1a1a1a 12px);position:relative;flex-shrink:0;}
+  #print-report .pr-mark::after{content:"";position:absolute;inset:5px;background:#fff;border-radius:3px;}
+  #print-report .pr-title h1{font-family:'Barlow Condensed',sans-serif;font-size:20px;margin:0;text-transform:uppercase;}
+  #print-report .pr-title .sub{font-size:10px;color:#666;text-transform:uppercase;letter-spacing:0.06em;font-family:'IBM Plex Mono',monospace;}
+  #print-report .pr-meta{display:grid;grid-template-columns:1fr 1fr;gap:6px 24px;margin-bottom:10px;font-size:11.5px;}
+  #print-report .pr-meta div b{display:block;font-size:9.5px;color:#888;text-transform:uppercase;letter-spacing:0.04em;font-weight:600;margin-bottom:2px;}
+  #print-report table{width:100%;border-collapse:collapse;margin-bottom:10px;font-size:10px;}
+  #print-report th,#print-report td{border:1px solid #ccc;padding:5px 6px;text-align:left;vertical-align:top;}
+  #print-report th{background:#f2f2f2;font-size:9px;text-transform:uppercase;letter-spacing:0.02em;}
+  #print-report tr{page-break-inside:avoid;}
+  #print-report .pr-verdict{border:2px solid #1a1a1a;border-radius:6px;padding:10px 14px;font-weight:700;margin:12px 0;text-align:center;}
+  #print-report .pr-verdict.ok{border-color:#1a7a4c;color:#1a7a4c;background:#eafaf1;}
+  #print-report .pr-verdict.bad{border-color:#a81f25;color:#a81f25;background:#fdecec;}
+  #print-report .pr-sig{margin-top:20px;display:flex;gap:24px;align-items:flex-end;}
+  #print-report .pr-sig img{height:70px;border-bottom:1px solid #333;}
+  #print-report .pr-footer{margin-top:20px;font-size:9.5px;color:#999;border-top:1px solid #ddd;padding-top:8px;}
+
+  /* ===== Gestión del sitio: avance, acción correctiva, dos firmas ===== */
+  input[type=date]{
+    width:100%;background:var(--surface);border:1px solid var(--line);color:var(--text);
+    padding:11px 12px;border-radius:7px;font-size:14px;font-family:'IBM Plex Mono',monospace;outline:none;color-scheme:dark;
+  }
+  .progress{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+  .progress-bar{flex:1;height:6px;background:var(--surface);border:1px solid var(--line);border-radius:4px;overflow:hidden;}
+  .progress-fill{height:100%;width:0;background:var(--safe);transition:width .2s;}
+  .progress-txt{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--text-dim);white-space:nowrap;}
+  .check-item{transition:border-color .15s;}
+  .check-item.is-bad{border-color:rgba(193,39,45,0.55);}
+  .action-box{margin-top:10px;padding:10px;border-radius:6px;background:rgba(193,39,45,0.08);border:1px dashed rgba(193,39,45,0.45);}
+  .action-box .ttl{font-family:'IBM Plex Mono',monospace;font-size:9.5px;color:var(--danger);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:8px;}
+  .action-box .row{display:grid;grid-template-columns:1.4fr 1fr;gap:6px;}
+  .action-box input{margin-top:0;font-size:11.5px;padding:7px 9px;border-radius:6px;background:var(--surface-2);font-family:'Inter',sans-serif;}
+  .sig-role{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--brand);letter-spacing:0.16em;text-transform:uppercase;margin-bottom:10px;}
+  .sig-role .opt{color:var(--text-faint);letter-spacing:0;text-transform:none;font-family:'Inter',sans-serif;}
+  canvas.sig-pad{width:100%;height:130px;display:block;border-radius:6px;touch-action:none;}
+  .opt{color:var(--text-faint);font-weight:400;}
+  #print-report .pr-sig{gap:40px;}
+  @media (max-width:380px){ .grid-2, .action-box .row{grid-template-columns:1fr;} }
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-mark"></div>
+      <div class="brand-text">
+        <div class="name"><span class="n-salfa">SALFA</span><span class="n-montajes">MONTAJES</span></div>
+        <div class="sub">SSOMA · Gestión del sitio</div>
+      </div>
+    </div>
+    <div class="net-chip online" id="net-chip">
+      <span class="net-dot"></span><span id="net-text">EN LÍNEA</span>
+    </div>
+  </div>
+
+  <main>
+
+    <a class="link-btn" href="../" style="display:inline-block;margin-bottom:14px;text-decoration:none;">← Volver al inicio</a>
+
+    <!-- Cola de sincronización -->
+    <div class="sync-panel">
+      <div>
+        <div class="lbl">Registros en este dispositivo</div>
+        <div class="count"><span id="pending-count">0</span><span class="unit">pendientes</span></div>
+      </div>
+      <button class="btn-sync" id="sync-btn" onclick="syncData()">Sincronizar</button>
+    </div>
+
+    <!-- Formulario -->
+    <div class="panel">
+      <div class="rco-tag">SSOMA · Gestión del sitio</div>
+      <div class="eyebrow">Check list de orden y aseo</div>
+      <h2>Gestión del Sitio</h2>
+      <p class="doc-ref" id="doc-ref"></p>
+      <p class="desc">Inspeccione los siguientes elementos en el área de trabajo. Para cada incumplimiento, asigne un responsable y una fecha de ejecución.</p>
+
+      <form id="checklist-form" onsubmit="saveChecklist(event)">
+        <div class="grid-2">
+          <div>
+            <label class="field-label">Obra o contrato</label>
+            <select id="proyecto" required onchange="toggleProyectoOtro()">
+              <option value="" disabled selected>Selecciona un proyecto</option>
+              <option value="CC-141">CC-141</option>
+              <option value="CC-146">CC-146</option>
+              <option value="CC-126">CC-126</option>
+              <option value="otro">Otro (ingresar manualmente)</option>
+            </select>
+            <input type="text" id="proyecto-otro" class="hidden" placeholder="Escribe el código del proyecto" style="margin-top:8px;">
+          </div>
+          <div>
+            <label class="field-label">Área</label>
+            <input type="text" id="area" required placeholder="Ej: Taller mecánico">
+          </div>
+        </div>
+        <div class="field-block">
+          <label class="field-label">Fecha / hora de inspección</label>
+          <input type="text" id="fecha-hora" required>
+        </div>
+
+        <div class="checklist-section">
+          <h3><span>🧹</span> Elementos a inspeccionar — ¿se cumple?</h3>
+          <div class="progress">
+            <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+            <div class="progress-txt" id="progress-txt">0/0 · Cumplimiento —</div>
+          </div>
+          <div id="items-list"></div>
+        </div>
+
+        <div class="field-block" style="margin-top:8px;">
+          <label class="field-label">Observaciones <span class="opt">(opcional)</span></label>
+          <textarea id="observaciones" placeholder="Hallazgos adicionales, condiciones del área, etc."></textarea>
+        </div>
+
+        <div class="sai-banner">⚠ Los incumplimientos identificados deben ser corregidos por el responsable asignado dentro del plazo y, cuando corresponda, reportados al Sistema de Administración de Incidentes (SAI).</div>
+
+        <div class="sig-section">
+          <div class="sig-role">Realizó</div>
+          <div class="grid-2">
+            <div>
+              <label class="field-label">Nombre</label>
+              <input type="text" id="realizo-nombre" required placeholder="Nombre completo">
+            </div>
+            <div>
+              <label class="field-label">Cargo</label>
+              <input type="text" id="realizo-cargo" required placeholder="Ej: Supervisor">
+            </div>
+          </div>
+          <label class="field-label">Firma</label>
+          <div class="sig-frame"><canvas class="sig-pad" id="sig-realizo"></canvas></div>
+          <div class="sig-actions">
+            <span class="sig-hint">Dibuje con el dedo o el mouse</span>
+            <button type="button" class="link-btn" onclick="pads.realizo.clear()">Limpiar firma</button>
+          </div>
+        </div>
+
+        <div class="sig-section">
+          <div class="sig-role">Revisó <span class="opt">(opcional)</span></div>
+          <div class="grid-2">
+            <div>
+              <label class="field-label">Nombre</label>
+              <input type="text" id="reviso-nombre" placeholder="Nombre completo">
+            </div>
+            <div>
+              <label class="field-label">Cargo</label>
+              <input type="text" id="reviso-cargo" placeholder="Ej: Prevencionista">
+            </div>
+          </div>
+          <label class="field-label">Firma</label>
+          <div class="sig-frame"><canvas class="sig-pad" id="sig-reviso"></canvas></div>
+          <div class="sig-actions">
+            <span class="sig-hint">Dibuje con el dedo o el mouse</span>
+            <button type="button" class="link-btn" onclick="pads.reviso.clear()">Limpiar firma</button>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-primary" id="submit-btn">Guardar inspección</button>
+        <button type="button" class="btn-secondary" id="pdf-btn" onclick="descargarInformePDF()">📄 Descargar informe (PDF)</button>
+      </form>
+    </div>
+
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+<div id="print-report" class="print-only"></div>
+
+<script src="vendor/jspdf.umd.min.js"></script>
+<script src="vendor/jspdf.plugin.autotable.min.js"></script>
+<script>
+  // ---------- Estado de red ----------
+  function updateOnlineStatus(){
+    const chip = document.getElementById('net-chip');
+    const txt = document.getElementById('net-text');
+    if(navigator.onLine){
+      chip.className = 'net-chip online'; txt.textContent = 'EN LÍNEA';
+    } else {
+      chip.className = 'net-chip offline'; txt.textContent = 'MODO OFFLINE';
+    }
+  }
+  window.addEventListener('online', updateOnlineStatus);
+  window.addEventListener('offline', updateOnlineStatus);
+  updateOnlineStatus();
+
+  // ---------- Firmas (canvas): Realizó y Revisó ----------
+  function createSignaturePad(canvas){
+    const ctx = canvas.getContext('2d');
+    const pad = { signed:false, drawing:false };
+    let lastWidth = 0;
+
+    function resize(){
+      // En móvil, el scroll dispara 'resize' (barra de direcciones); solo redimensionar si cambia el ancho
+      if(canvas.offsetWidth === lastWidth) return;
+      lastWidth = canvas.offsetWidth;
+      const ratio = Math.max(window.devicePixelRatio || 1, 1);
+      canvas.width = canvas.offsetWidth * ratio;
+      canvas.height = canvas.offsetHeight * ratio;
+      ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+      ctx.strokeStyle = '#000000';
+      ctx.lineWidth = 2;
+      ctx.lineCap = 'round';
+      pad.signed = false;
+    }
+    function getPos(e){
+      const rect = canvas.getBoundingClientRect();
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      return { x: clientX - rect.left, y: clientY - rect.top };
+    }
+    function start(e){ pad.drawing=true; pad.signed=true; ctx.beginPath(); const p=getPos(e); ctx.moveTo(p.x,p.y); if(e.touches) e.preventDefault(); }
+    function move(e){ if(pad.drawing){ const p=getPos(e); ctx.lineTo(p.x,p.y); ctx.stroke(); if(e.touches) e.preventDefault(); } }
+
+    canvas.addEventListener('mousedown', start);
+    canvas.addEventListener('mousemove', move);
+    window.addEventListener('mouseup', ()=>pad.drawing=false);
+    canvas.addEventListener('touchstart', start);
+    canvas.addEventListener('touchmove', move);
+    canvas.addEventListener('touchend', ()=>pad.drawing=false);
+
+    pad.resize = resize;
+    pad.clear = ()=>{ ctx.clearRect(0,0,canvas.width,canvas.height); pad.signed=false; };
+    pad.toDataURL = ()=>canvas.toDataURL('image/png');
+    return pad;
+  }
+
+  const pads = {
+    realizo: createSignaturePad(document.getElementById('sig-realizo')),
+    reviso: createSignaturePad(document.getElementById('sig-reviso'))
+  };
+  function resizePads(){ Object.values(pads).forEach(p=>p.resize()); }
+  window.addEventListener('resize', resizePads);
+  setTimeout(resizePads, 80);
+
+  // ---------- Datos del check list ----------
+  // Fuente: Check List Gestión del Sitio (Orden y Aseo) · SSOMA · REV 0 · 20/01/2021
+  const CHECK = {
+    codigo: 'GS',
+    nombre: 'Check List Gestión del Sitio',
+    documento: 'SSOMA · Gestión del Sitio · REV 0 · 20/01/2021',
+    items: [
+      '¿El sistema de iluminación permanece limpio y en buenas condiciones?',
+      '¿Los equipos de extinción están accesibles y debidamente identificados?',
+      '¿Los pasillos permanecen limpios y despejados?',
+      '¿Existen áreas de tránsito definidas al interior del área?',
+      '¿Los pisos permanecen libres de obstáculos o sustancias deslizantes?',
+      '¿Existe número adecuado de contenedores para residuos?',
+      '¿Las herramientas son guardadas en forma ordenada y protegidas?',
+      '¿Existe un lugar definido para el estacionamiento de máquinas y equipos?',
+      '¿Se controlan los despuntes con clavos doblados o libres de éstos?',
+      '¿Las extensiones eléctricas se mantienen por vía aérea?',
+      '¿Existen sectores definidos para el acopio de diferentes materiales?',
+      '¿El área de trabajo cuenta con una estación de agua para beber?',
+      '¿Los baños químicos se encuentran a menos de 75 mts?',
+      '¿Existe señalización visible y permanente en las zonas de peligro? ¿Se indica el agente y condición de riesgo?',
+      '¿Se etiquetan las sustancias peligrosas dispuestas en las zonas de trabajo?',
+      '¿Los equipos y/o maquinarias cuentan con una bandeja antiderrame?',
+      '¿El área de trabajo cuenta con un letrero indicando el responsable del área y número de contacto (Jefe de área / Prevención)?'
+    ]
+  };
+
+  document.getElementById('doc-ref').textContent = CHECK.documento;
+
+  function formatNow(){
+    const now = new Date();
+    return now.toLocaleDateString('es-CL') + ' ' + now.toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit'});
+  }
+  document.getElementById('fecha-hora').value = formatNow();
+
+  function toggleProyectoOtro(){
+    const sel = document.getElementById('proyecto');
+    const otro = document.getElementById('proyecto-otro');
+    const isOtro = sel.value === 'otro';
+    otro.classList.toggle('hidden', !isOtro);
+    otro.required = isOtro;
+    if(isOtro) otro.focus(); else otro.value = '';
+  }
+
+  function getProyectoValue(){
+    const sel = document.getElementById('proyecto');
+    if(sel.value === 'otro') return document.getElementById('proyecto-otro').value.trim();
+    return sel.value;
+  }
+
+  function val(id){ return document.getElementById(id).value.trim(); }
+
+  // ---------- Estado del checklist ----------
+  let checkValues = {};
+  let comments = {};
+  let evidencias = {};
+  let adjuntos = {};
+  let acciones = {}; // idx -> { responsable, fecha } (solo para ítems en NO)
+
+  function accion(idx){ return acciones[idx] || (acciones[idx] = { responsable:'', fecha:'' }); }
+
+  // ---------- Adjuntos de evidencia (foto o documento) ----------
+  const MAX_FILE_BYTES = 4 * 1024 * 1024; // 4 MB
+  const IMAGE_MAX_WIDTH = 1200;
+  const IMAGE_QUALITY = 0.72;
+
+  function fileToDataUrl(file){
+    return new Promise((resolve, reject)=>{
+      const reader = new FileReader();
+      reader.onload = ()=>resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function downscaleImage(file){
+    return new Promise((resolve, reject)=>{
+      const reader = new FileReader();
+      reader.onload = ()=>{
+        const img = new Image();
+        img.onload = ()=>{
+          const scale = Math.min(1, IMAGE_MAX_WIDTH / img.width);
+          const w = Math.max(1, Math.round(img.width * scale));
+          const h = Math.max(1, Math.round(img.height * scale));
+          const c = document.createElement('canvas');
+          c.width = w; c.height = h;
+          c.getContext('2d').drawImage(img, 0, 0, w, h);
+          resolve(c.toDataURL('image/jpeg', IMAGE_QUALITY));
+        };
+        img.onerror = reject;
+        img.src = reader.result;
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function getResumen(){
+    const vals = CHECK.items.map((_, i)=>checkValues[i]);
+    const si = vals.filter(v=>v==='SI').length;
+    const no = vals.filter(v=>v==='NO').length;
+    const na = vals.filter(v=>v==='N/A').length;
+    return { si, no, na, cumplimiento: (si+no) ? Math.round(si*100/(si+no)) : null };
+  }
+
+  function updateProgress(){
+    const total = CHECK.items.length;
+    const r = getResumen();
+    const answered = r.si + r.no + r.na;
+    document.getElementById('progress-fill').style.width = (answered * 100 / total) + '%';
+    document.getElementById('progress-txt').textContent =
+      answered + '/' + total + ' · Cumplimiento ' + (r.cumplimiento === null ? '—' : r.cumplimiento + '%');
+  }
+
+  function setCheck(idx, value, btnEl){
+    checkValues[idx] = value;
+    const item = btnEl.closest('.check-item');
+    item.querySelectorAll('.seg button').forEach(b=>b.classList.remove('sel-ok','sel-bad','sel-na'));
+    btnEl.classList.add(value==='SI' ? 'sel-ok' : value==='NO' ? 'sel-bad' : 'sel-na');
+    item.classList.toggle('is-bad', value==='NO');
+    item.querySelector('.action-box').classList.toggle('hidden', value!=='NO');
+    updateProgress();
+  }
+
+  function buildChecklist(){
+    const container = document.getElementById('items-list');
+    container.innerHTML = '';
+    CHECK.items.forEach((text, idx)=>{
+      const item = document.createElement('div');
+      item.className = 'check-item';
+
+      const q = document.createElement('div');
+      q.className = 'q';
+      q.textContent = (idx+1) + '. ' + text;
+      item.appendChild(q);
+
+      const seg = document.createElement('div');
+      seg.className = 'seg';
+      ['SI','NO','N/A'].forEach(value=>{
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.textContent = value;
+        btn.addEventListener('click', ()=>setCheck(idx, value, btn));
+        seg.appendChild(btn);
+      });
+      item.appendChild(seg);
+
+      // Acción correctiva (visible solo si el ítem queda en NO)
+      const box = document.createElement('div');
+      box.className = 'action-box hidden';
+      box.innerHTML = '<div class="ttl">Acción correctiva</div><div class="row"></div>';
+      const resp = document.createElement('input');
+      resp.type = 'text';
+      resp.placeholder = 'Responsable ejecución';
+      resp.addEventListener('input', ()=>{ accion(idx).responsable = resp.value; });
+      const fecha = document.createElement('input');
+      fecha.type = 'date';
+      fecha.title = 'Fecha de ejecución';
+      fecha.addEventListener('input', ()=>{ accion(idx).fecha = fecha.value; });
+      box.querySelector('.row').append(resp, fecha);
+      item.appendChild(box);
+
+      const comment = document.createElement('input');
+      comment.type = 'text';
+      comment.className = 'comment-input';
+      comment.placeholder = 'Comentario (opcional)';
+      comment.addEventListener('input', ()=>{ comments[idx] = comment.value; });
+      item.appendChild(comment);
+
+      const evidencia = document.createElement('input');
+      evidencia.type = 'text';
+      evidencia.className = 'comment-input';
+      evidencia.placeholder = 'Evidencia (opcional)';
+      evidencia.addEventListener('input', ()=>{ evidencias[idx] = evidencia.value; });
+      item.appendChild(evidencia);
+
+      const fileRow = document.createElement('div');
+      fileRow.className = 'file-row';
+
+      const inputId = 'file-' + idx;
+      const fileInput = document.createElement('input');
+      fileInput.type = 'file';
+      fileInput.id = inputId;
+      fileInput.className = 'file-input-hidden';
+      fileInput.accept = 'image/*,.pdf,.doc,.docx,.xls,.xlsx';
+
+      const slot = document.createElement('div');
+
+      function renderEmptySlot(){
+        slot.innerHTML = '';
+        const label = document.createElement('label');
+        label.className = 'file-btn';
+        label.htmlFor = inputId;
+        label.textContent = '📎 Adjuntar evidencia (foto o documento)';
+        slot.appendChild(label);
+        const hint = document.createElement('div');
+        hint.className = 'file-hint';
+        hint.textContent = 'Fotos, PDF o Word/Excel · máx. 4 MB (las fotos se comprimen automáticamente)';
+        slot.appendChild(hint);
+      }
+
+      function renderChip(adj){
+        slot.innerHTML = '';
+        const chip = document.createElement('div');
+        chip.className = 'file-chip';
+        if(adj.mime.startsWith('image/')){
+          const thumb = document.createElement('img');
+          thumb.className = 'thumb';
+          thumb.src = adj.dataUrl;
+          chip.appendChild(thumb);
+        } else {
+          const icon = document.createElement('span');
+          icon.textContent = '📄';
+          chip.appendChild(icon);
+        }
+        const name = document.createElement('span');
+        name.className = 'name';
+        name.textContent = adj.filename;
+        chip.appendChild(name);
+        const rm = document.createElement('button');
+        rm.type = 'button';
+        rm.className = 'rm-btn';
+        rm.textContent = '✕';
+        rm.addEventListener('click', ()=>{
+          delete adjuntos[idx];
+          fileInput.value = '';
+          renderEmptySlot();
+        });
+        chip.appendChild(rm);
+        slot.appendChild(chip);
+      }
+
+      renderEmptySlot();
+
+      fileInput.addEventListener('change', async ()=>{
+        const file = fileInput.files[0];
+        if(!file) return;
+        if(file.size > MAX_FILE_BYTES){
+          showToast('El archivo supera 4 MB. Elige uno más liviano o comprime la foto.', true);
+          fileInput.value = '';
+          return;
+        }
+        try{
+          const isImage = file.type.startsWith('image/');
+          const dataUrl = isImage ? await downscaleImage(file) : await fileToDataUrl(file);
+          adjuntos[idx] = { filename: file.name, mime: file.type || 'application/octet-stream', dataUrl };
+          renderChip(adjuntos[idx]);
+        }catch(err){
+          console.error('Error al procesar adjunto:', err);
+          showToast('No se pudo procesar el archivo adjunto.', true);
+        }
+      });
+
+      fileRow.appendChild(fileInput);
+      fileRow.appendChild(slot);
+      item.appendChild(fileRow);
+
+      container.appendChild(item);
+    });
+    updateProgress();
+  }
+  buildChecklist();
+
+  // Devuelve un mensaje de error si falta algo, o null si el formulario está completo
+  function validarChecklist(){
+    const items = document.querySelectorAll('.check-item');
+    const faltante = CHECK.items.findIndex((_, i)=>!checkValues[i]);
+    if(faltante !== -1){
+      items[faltante].scrollIntoView({behavior:'smooth', block:'center'});
+      return 'Falta responder el punto ' + (faltante+1) + '.';
+    }
+    const sinAccion = CHECK.items.findIndex((_, i)=>checkValues[i]==='NO' && (!accion(i).responsable.trim() || !accion(i).fecha));
+    if(sinAccion !== -1){
+      items[sinAccion].scrollIntoView({behavior:'smooth', block:'center'});
+      return 'Asigna responsable y fecha de ejecución al punto ' + (sinAccion+1) + '.';
+    }
+    if(!pads.realizo.signed) return 'Falta la firma de quien realizó la inspección.';
+    if(pads.reviso.signed && !val('reviso-nombre')) return 'Indica el nombre de quien revisó.';
+    return null;
+  }
+
+  // ---------- Toast ----------
+  let toastTimer;
+  function showToast(msg, isErr=false){
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast show' + (isErr ? ' err' : '');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(()=>t.classList.remove('show'), 2800);
+  }
+
+  // ---------- Almacenamiento persistente (cola offline) ----------
+  const STORAGE_KEY = 'salfa_gestion_sitio_pending';
+
+  async function getQueue(){
+    try{
+      const raw = localStorage.getItem(STORAGE_KEY);
+      return raw ? JSON.parse(raw) : [];
+    }catch(err){
+      console.error('Error al leer almacenamiento local:', err);
+      return [];
+    }
+  }
+
+  async function setQueue(queue){
+    try{
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(queue));
+      return true;
+    }catch(err){
+      console.error('Error al guardar en almacenamiento local:', err);
+      return false;
+    }
+  }
+
+  async function updatePendingCount(){
+    const queue = await getQueue();
+    document.getElementById('pending-count').textContent = queue.filter(r => !r.synced).length;
+  }
+
+  // Snapshot del formulario actual (se usa tanto para guardar como para el informe imprimible)
+  function buildRecord(){
+    const ahora = new Date().toISOString();
+    const revisoNombre = val('reviso-nombre');
+    return {
+      id: CHECK.codigo + '-' + Date.now(),
+      formulario: { codigo: CHECK.codigo, nombre: CHECK.nombre, documento: CHECK.documento },
+      timestamp: ahora,
+      proyecto: getProyectoValue(),
+      area: val('area'),
+      fechaHora: val('fecha-hora'),
+      items: CHECK.items.map((text, idx)=>({
+        item: text,
+        valor: checkValues[idx],
+        responsableEjecucion: checkValues[idx]==='NO' ? accion(idx).responsable.trim() : '',
+        fechaEjecucion: checkValues[idx]==='NO' ? accion(idx).fecha : '',
+        comentario: comments[idx] || '',
+        evidencia: evidencias[idx] || '',
+        adjunto: adjuntos[idx] || null
+      })),
+      resumen: getResumen(),
+      observaciones: val('observaciones'),
+      realizo: { nombre: val('realizo-nombre'), cargo: val('realizo-cargo'), firma: pads.realizo.toDataURL(), fecha: ahora },
+      reviso: (pads.reviso.signed || revisoNombre)
+        ? { nombre: revisoNombre, cargo: val('reviso-cargo'), firma: pads.reviso.signed ? pads.reviso.toDataURL() : '', fecha: pads.reviso.signed ? ahora : '' }
+        : null,
+      synced: false
+    };
+  }
+
+  function resetForm(){
+    document.getElementById('checklist-form').reset();
+    toggleProyectoOtro();
+    pads.realizo.clear(); pads.reviso.clear();
+    checkValues = {}; comments = {}; evidencias = {}; adjuntos = {}; acciones = {};
+    buildChecklist();
+    document.getElementById('fecha-hora').value = formatNow();
+  }
+
+  async function saveChecklist(e){
+    e.preventDefault();
+
+    const error = validarChecklist();
+    if(error){ showToast(error, true); return; }
+
+    const submitBtn = document.getElementById('submit-btn');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Guardando…';
+
+    const record = buildRecord();
+    const queue = await getQueue();
+    queue.push(record);
+    const ok = await setQueue(queue);
+
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Guardar inspección';
+
+    if(ok){
+      showToast('✅ Inspección guardada en el dispositivo.');
+      resetForm();
+      updatePendingCount();
+      window.scrollTo({top:0, behavior:'smooth'});
+      attemptAutoUpload(record.id);
+    } else {
+      showToast('No se pudo guardar (almacenamiento lleno). Quita adjuntos pesados o sincroniza los pendientes.', true);
+    }
+  }
+
+  async function syncData(){
+    const queue = await getQueue();
+    const pending = queue.filter(r => !r.synced);
+
+    if(pending.length === 0){
+      showToast('No hay registros pendientes por sincronizar.');
+      return;
+    }
+    if(!navigator.onLine){
+      showToast('⚠️ Sin conexión a internet. Conéctate para sincronizar.', true);
+      return;
+    }
+    if(!DRIVE_UPLOAD_URL){
+      showToast('⚠️ La subida automática a Drive aún no está configurada.', true);
+      return;
+    }
+
+    const btn = document.getElementById('sync-btn');
+    btn.disabled = true;
+    btn.textContent = 'Sincronizando…';
+
+    let success = 0, failed = 0, lastError = '';
+    for(const record of pending){
+      const result = await uploadRecordToDrive(record);
+      if(result && result.ok){ record.synced = true; success++; }
+      else { failed++; lastError = (result && result.error) ? String(result.error) : 'error desconocido'; }
+    }
+    await setQueue(queue.filter(r => !r.synced));
+
+    btn.disabled = false;
+    btn.textContent = 'Sincronizar';
+    updatePendingCount();
+
+    if(failed === 0){
+      showToast(`🚀 ${success} registro(s) subido(s) a Drive.`);
+    } else {
+      showToast(`⚠️ ${success} subida(s), ${failed} con error: ${lastError}`, success === 0);
+    }
+  }
+
+  updatePendingCount();
+
+  // ---------- Subida automática a Google Drive ----------
+  // Pendiente: para activar la subida, copiar aquí DRIVE_UPLOAD_URL y DRIVE_SHARED_SECRET
+  // desde calor/index.html (mismo puente de Apps Script). Mientras estén vacíos,
+  // los registros quedan en la cola local y el informe se descarga con el botón PDF.
+  const DRIVE_UPLOAD_URL = '';
+  const DRIVE_SHARED_SECRET = '';
+
+  if(window.jspdf && window.jspdf.jsPDF && window.applyPlugin){
+    window.applyPlugin(window.jspdf.jsPDF);
+  }
+
+  function formatFecha(iso){
+    if(!iso) return '—';
+    const [y, m, d] = iso.split('-');
+    return `${d}/${m}/${y}`;
+  }
+
+  function buildReportPdf(record){
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+    const marginX = 14;
+    let y = 16;
+
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(16); doc.setTextColor(26, 26, 26);
+    doc.text('SALFA MONTAJES', marginX, y);
+    y += 5;
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(100, 100, 100);
+    doc.text(`${record.formulario.nombre} · ${record.formulario.documento}`, marginX, y);
+    y += 3;
+    doc.setDrawColor(193, 39, 45); doc.setLineWidth(0.8);
+    doc.line(marginX, y, 196, y);
+    y += 8;
+
+    const r = record.resumen;
+    const metaRows = [
+      ['OBRA O CONTRATO', record.proyecto || '—', 'ÁREA', record.area || '—'],
+      ['FECHA / HORA', record.fechaHora || '—', 'CUMPLIMIENTO', `${r.cumplimiento === null ? '—' : r.cumplimiento + '%'}  (SI ${r.si} · NO ${r.no} · N/A ${r.na})`]
+    ];
+    metaRows.forEach(([l1, v1, l2, v2]) => {
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5); doc.setTextColor(120, 120, 120);
+      doc.text(l1, marginX, y); doc.text(l2, 105, y);
+      y += 4.2;
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(10); doc.setTextColor(26, 26, 26);
+      doc.text(String(v1), marginX, y); doc.text(String(v2), 105, y);
+      y += 5.5;
+    });
+    y += 2;
+
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(11); doc.setTextColor(26, 26, 26);
+    doc.text('Elementos a inspeccionar', marginX, y);
+    y += 3;
+
+    const imageRows = {};
+    record.items.forEach((it, i) => {
+      if(it.adjunto && it.adjunto.mime.startsWith('image/')) imageRows[i] = it.adjunto.dataUrl;
+    });
+
+    doc.autoTable({
+      startY: y,
+      margin: { left: marginX, right: marginX },
+      styles: { fontSize: 7, cellPadding: 1.8, textColor: [26, 26, 26] },
+      headStyles: { fillColor: [242, 242, 242], textColor: [26, 26, 26] },
+      columnStyles: { 0: { cellWidth: 6 }, 1: { cellWidth: 58 }, 2: { cellWidth: 13, halign: 'center' }, 7: { cellWidth: 18 } },
+      head: [['#', 'Elemento', 'Result.', 'Responsable ejecución', 'Fecha', 'Comentario', 'Evidencia', 'Adjunto']],
+      body: record.items.map((it, i) => [
+        i + 1, it.item, it.valor || '—',
+        it.responsableEjecucion || '—', it.fechaEjecucion ? formatFecha(it.fechaEjecucion) : '—',
+        it.comentario || '—', it.evidencia || '—',
+        imageRows[i] ? '' : (it.adjunto ? it.adjunto.filename : '—')
+      ]),
+      didParseCell: (data) => {
+        if(data.section === 'body' && data.column.index === 7 && imageRows[data.row.index]){
+          data.cell.styles.minCellHeight = 16;
+        }
+        if(data.section === 'body' && data.column.index === 2){
+          if(data.cell.raw === 'NO') data.cell.styles.textColor = [168, 31, 37];
+          if(data.cell.raw === 'SI') data.cell.styles.textColor = [26, 122, 76];
+          data.cell.styles.fontStyle = 'bold';
+        }
+      },
+      didDrawCell: (data) => {
+        if(data.section === 'body' && data.column.index === 7){
+          const img = imageRows[data.row.index];
+          if(img){
+            try{
+              const pad = 1;
+              doc.addImage(img, 'JPEG', data.cell.x + pad, data.cell.y + pad, data.cell.width - pad * 2, data.cell.height - pad * 2);
+            }catch(e){}
+          }
+        }
+      }
+    });
+    y = doc.lastAutoTable.finalY + 8;
+
+    if(record.observaciones){
+      if(y > 250){ doc.addPage(); y = 20; }
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5); doc.setTextColor(120, 120, 120);
+      doc.text('OBSERVACIONES', marginX, y);
+      y += 4.2;
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(10); doc.setTextColor(26, 26, 26);
+      const obsLines = doc.splitTextToSize(record.observaciones, 182);
+      doc.text(obsLines, marginX, y);
+      y += obsLines.length * 4.5 + 4;
+    }
+
+    const hasNo = r.no > 0;
+    const fillColor = hasNo ? [253, 236, 236] : [234, 250, 241];
+    const drawColor = hasNo ? [168, 31, 37] : [26, 122, 76];
+    if(y > 250){ doc.addPage(); y = 20; }
+    doc.setFillColor(fillColor[0], fillColor[1], fillColor[2]);
+    doc.setDrawColor(drawColor[0], drawColor[1], drawColor[2]);
+    doc.roundedRect(marginX, y, 182, 10, 2, 2, 'FD');
+    doc.setTextColor(drawColor[0], drawColor[1], drawColor[2]);
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(10);
+    doc.text(
+      hasNo ? `${r.no} incumplimiento(s) con acción correctiva asignada` : 'Sin incumplimientos detectados',
+      marginX + 91, y + 6.5, { align: 'center' }
+    );
+    doc.setTextColor(26, 26, 26);
+    y += 18;
+
+    if(y > 245){ doc.addPage(); y = 20; }
+
+    const firmas = [['REALIZÓ', record.realizo], ['REVISÓ', record.reviso]];
+    firmas.forEach(([rol, f], i) => {
+      const x = marginX + i * 95;
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5); doc.setTextColor(120, 120, 120);
+      doc.text(rol, x, y);
+      if(f && f.firma){ try { doc.addImage(f.firma, 'PNG', x, y + 2, 55, 20); } catch(e){} }
+      doc.setDrawColor(150, 150, 150); doc.setLineWidth(0.2);
+      doc.line(x, y + 24, x + 80, y + 24);
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(9); doc.setTextColor(26, 26, 26);
+      doc.text((f && f.nombre) || '—', x, y + 29);
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(8.5);
+      doc.text((f && f.cargo) || '—', x, y + 33.5);
+      doc.setTextColor(120, 120, 120);
+      doc.text(f && f.fecha ? new Date(f.fecha).toLocaleDateString('es-CL') : '—', x, y + 38);
+    });
+
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5); doc.setTextColor(150, 150, 150);
+    doc.text(`Documento generado a partir de ${record.formulario.documento} — Suite de Prevención Salfa Montajes.`, marginX, 289);
+
+    return doc;
+  }
+
+  async function uploadRecordToDrive(record){
+    if(!DRIVE_UPLOAD_URL) return { ok: false, error: 'not_configured' };
+    try{
+      const doc = buildReportPdf(record);
+      const dataUri = doc.output('datauristring');
+      const base64 = dataUri.split(',').pop();
+      const safeProyecto = (record.proyecto || 'SF').replace(/[^\w-]+/g, '_');
+      await fetch(DRIVE_UPLOAD_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({
+          secret: DRIVE_SHARED_SECRET,
+          filename: `GestionSitio_${safeProyecto}_${record.id}.pdf`,
+          pdfBase64: base64
+        })
+      });
+      // Apps Script no expone cabeceras CORS en su respuesta, así que en modo
+      // 'no-cors' el navegador no deja leerla (queda "opaca"). Si el fetch no
+      // lanzó una excepción, la solicitud sí llegó al servidor: lo damos por
+      // subido, aunque no podamos confirmar el resultado exacto desde aquí.
+      return { ok: true };
+    }catch(err){
+      console.error('Error al subir a Drive:', err);
+      return { ok: false, error: String(err) };
+    }
+  }
+
+  async function attemptAutoUpload(recordId){
+    if(!DRIVE_UPLOAD_URL || !navigator.onLine) return;
+    const queue = await getQueue();
+    const record = queue.find(r => r.id === recordId);
+    if(!record || record.synced) return;
+
+    const result = await uploadRecordToDrive(record);
+    if(result && result.ok){
+      const remaining = queue.filter(r => r.id !== recordId);
+      await setQueue(remaining);
+      updatePendingCount();
+      showToast('☁️ Informe subido automáticamente a Drive.');
+    }
+    // Si falla, el registro queda en la cola local para reintentar con "Sincronizar".
+  }
+
+  // ---------- Informe imprimible (PDF) ----------
+  function escapeHtml(str){
+    return String(str ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  function firmaHtml(rol, f){
+    return `
+      <div style="flex:1;">
+        <div style="font-size:9.5px;color:#888;text-transform:uppercase;letter-spacing:0.04em;font-weight:600;margin-bottom:4px;">${rol}</div>
+        ${f && f.firma ? `<img src="${f.firma}" alt="Firma">` : '<div style="height:70px;border-bottom:1px solid #333;"></div>'}
+        <div style="font-size:11px;margin-top:4px;"><b>${escapeHtml(f && f.nombre) || '—'}</b></div>
+        <div style="font-size:10.5px;">${escapeHtml(f && f.cargo) || '—'}</div>
+        <div style="font-size:10px;color:#888;">${f && f.fecha ? new Date(f.fecha).toLocaleDateString('es-CL') : 'Fecha: ______'}</div>
+      </div>`;
+  }
+
+  function buildPrintReport(){
+    const record = buildRecord();
+    const r = record.resumen;
+
+    const rows = record.items.map((it, idx) => {
+      const adj = it.adjunto;
+      let adjuntoCell = '—';
+      if(adj){
+        adjuntoCell = adj.mime.startsWith('image/')
+          ? `<img src="${adj.dataUrl}" style="width:56px;height:56px;object-fit:cover;border-radius:4px;display:block;">`
+          : `📄 ${escapeHtml(adj.filename)}`;
+      }
+      const color = it.valor === 'NO' ? '#a81f25' : it.valor === 'SI' ? '#1a7a4c' : '#555';
+      return `
+      <tr>
+        <td>${idx + 1}</td>
+        <td>${escapeHtml(it.item)}</td>
+        <td style="text-align:center;font-weight:700;color:${color};">${it.valor || '—'}</td>
+        <td>${escapeHtml(it.responsableEjecucion) || '—'}</td>
+        <td>${it.fechaEjecucion ? formatFecha(it.fechaEjecucion) : '—'}</td>
+        <td>${escapeHtml(it.comentario) || '—'}</td>
+        <td>${escapeHtml(it.evidencia) || '—'}</td>
+        <td>${adjuntoCell}</td>
+      </tr>`;
+    }).join('');
+
+    document.getElementById('print-report').innerHTML = `
+      <div class="pr-header">
+        <div class="pr-mark"></div>
+        <div class="pr-title">
+          <h1>Salfa Montajes</h1>
+          <div class="sub">${escapeHtml(CHECK.nombre)} · ${escapeHtml(CHECK.documento)}</div>
+        </div>
+      </div>
+      <div class="pr-meta">
+        <div><b>Obra o contrato</b>${escapeHtml(record.proyecto) || '—'}</div>
+        <div><b>Área</b>${escapeHtml(record.area) || '—'}</div>
+        <div><b>Fecha / hora</b>${escapeHtml(record.fechaHora) || '—'}</div>
+        <div><b>Cumplimiento</b>${r.cumplimiento === null ? '—' : r.cumplimiento + '%'} (SI ${r.si} · NO ${r.no} · N/A ${r.na})</div>
+      </div>
+
+      <h3>🧹 Elementos a inspeccionar</h3>
+      <table>
+        <thead><tr><th>#</th><th>Elemento</th><th>Resultado</th><th>Responsable ejecución</th><th>Fecha</th><th>Comentario</th><th>Evidencia</th><th>Adjunto</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+
+      ${record.observaciones ? `<div class="pr-meta"><div style="grid-column:1 / -1;"><b>Observaciones</b>${escapeHtml(record.observaciones)}</div></div>` : ''}
+
+      ${r.no > 0
+        ? `<div class="pr-verdict bad">⚠ ${r.no} incumplimiento(s) con acción correctiva asignada.</div>`
+        : '<div class="pr-verdict ok">✅ Sin incumplimientos detectados.</div>'}
+
+      <div class="pr-sig">
+        ${firmaHtml('Realizó', record.realizo)}
+        ${firmaHtml('Revisó', record.reviso)}
+      </div>
+
+      <div class="pr-footer">N.A: No aplicable · Documento generado a partir de ${escapeHtml(CHECK.documento)} — Suite de Prevención Salfa Montajes · ${new Date().toLocaleString('es-CL')}</div>
+    `;
+  }
+
+  function descargarInformePDF(){
+    if(!document.getElementById('checklist-form').reportValidity()) return;
+    const error = validarChecklist();
+    if(error){ showToast(error, true); return; }
+    buildPrintReport();
+    window.print();
+  }
+</script>
+</body>
+</html>
