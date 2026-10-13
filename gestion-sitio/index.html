@@ -873,11 +873,9 @@
   updatePendingCount();
 
   // ---------- Subida automática a Google Drive ----------
-  // Pendiente: para activar la subida, copiar aquí DRIVE_UPLOAD_URL y DRIVE_SHARED_SECRET
-  // desde calor/index.html (mismo puente de Apps Script). Mientras estén vacíos,
-  // los registros quedan en la cola local y el informe se descarga con el botón PDF.
-  const DRIVE_UPLOAD_URL = '';
-  const DRIVE_SHARED_SECRET = '';
+  // Reutiliza el mismo puente de Apps Script ya configurado en calor/index.html.
+  const DRIVE_UPLOAD_URL = 'https://script.google.com/macros/s/AKfycbyeDCFXI_YSLIMq8rwmKVdIftke-Cj7GZkO40rQkIRr2ksqvVkYG2WH9zw0FC4Ot4rZLw/exec';
+  const DRIVE_SHARED_SECRET = '0ecca3d7af4b241d1453e171c313b8485cc7423b';
 
   if(window.jspdf && window.jspdf.jsPDF && window.applyPlugin){
     window.applyPlugin(window.jspdf.jsPDF);
