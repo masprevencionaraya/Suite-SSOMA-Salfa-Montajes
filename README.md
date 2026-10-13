@@ -1,6 +1,6 @@
 # Salfa · Suite de Prevención
 
-Dos aplicaciones web independientes (sin backend, sin build step) para prevención de riesgos en terreno.
+Aplicaciones web independientes (sin backend, sin build step) para prevención de riesgos en terreno.
 
 ## Estructura
 
@@ -9,8 +9,10 @@ salfa-prevencion/
 ├── index.html              # Página de inicio, enlaza a ambas apps
 ├── fatiga/
 │   └── index.html          # Turno·Seguro — control de fatiga y test de reacción
-└── checklist/
-    └── index.html          # HSE Montajes — checklist pre-uso con firma digital
+├── checklist/
+│   └── index.html          # HSE Montajes — checklist pre-uso con firma digital
+└── gestion-sitio/
+    └── index.html          # Check List Gestión del Sitio (SSOMA) — orden y aseo
 ```
 
 ## Apps
@@ -21,7 +23,10 @@ Autoevaluación de fatiga antes de operar maquinaria: horas de sueño, nivel de 
 ### 🟠 HSE Montajes — `/checklist`
 Checklist de inspección pre-uso de herramientas (RUT, área, 3 puntos de control) con firma digital en canvas. Guarda los registros en `localStorage` del navegador como cola offline, y simula sincronización a un backend cuando hay conexión.
 
-**Nota:** ambas apps son prototipos front-end. El checklist no envía datos a ningún servidor real — el botón "Sincronizar" simula el envío y vacía la cola local. Para producción real, hay que reemplazar esa simulación por una llamada a una API.
+### 🔴 Check List Gestión del Sitio — `/gestion-sitio`
+Versión digital del formulario SSOMA "Check List Gestión del Sitio" (Rev. 0, 20/01/2021), con el mismo diseño de las listas RCO. Incluye obra/contrato, área, los 17 elementos de orden y aseo (SI / NO / N.A), responsable y fecha de ejecución obligatorios para cada "NO", porcentaje de cumplimiento, observaciones y firmas de **Realizó** y **Revisó**. Guarda en `localStorage` (clave `salfa_gestion_sitio_pending`) como cola offline.
+
+**Nota:** las apps son prototipos front-end. El checklist no envía datos a ningún servidor real — el botón "Sincronizar" simula el envío y vacía la cola local. Para producción real, hay que reemplazar esa simulación por una llamada a una API.
 
 ## Cómo correrlas localmente
 

@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>SALFA MONTAJES — Check List Gestión del Sitio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#12161A; --surface:#1B2127; --surface-2:#242C33; --line:#323C45;
+    --brand:#C1272D; --brand-gray:#9B9D9E; --danger:#C1272D; --safe:#2FB57D; --caution:#F0A400;
+    --text:#EDEFF2; --text-dim:#8C97A3; --text-faint:#5C6773;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:radial-gradient(1100px 500px at 15% -10%, rgba(193,39,45,0.09), transparent 60%), var(--bg);
+    color:var(--text); font-family:'Inter',sans-serif; min-height:100vh; -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.display{font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;letter-spacing:0.02em;}
+  .mono{font-family:'IBM Plex Mono',monospace;}
+
+  .app-shell{max-width:520px;margin:0 auto;min-height:100vh;background:var(--surface);border-left:1px solid var(--line);border-right:1px solid var(--line);}
+
+  .topbar{
+    display:flex;align-items:center;justify-content:space-between;padding:14px 18px;
+    background:linear-gradient(180deg, var(--surface-2), var(--surface));
+    border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20;
+  }
+  .brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit;}
+  .brand-mark{
+    width:34px;height:34px;border-radius:6px;
+    background:repeating-linear-gradient(45deg, var(--brand), var(--brand) 6px, #1a1a1a 6px, #1a1a1a 12px);
+    position:relative;flex-shrink:0;
+  }
+  .brand-mark::after{content:"";position:absolute;inset:5px;background:var(--surface);border-radius:3px;}
+  .brand-text .name{font-size:17px;font-weight:800;letter-spacing:0.01em;line-height:1.1;font-family:'Barlow Condensed',sans-serif;}
+  .brand-text .name .n-salfa{color:var(--brand);}
+  .brand-text .name .n-montajes{color:var(--brand-gray);}
+  .brand-text .sub{font-size:9.5px;color:var(--text-faint);letter-spacing:0.12em;text-transform:uppercase;font-family:'IBM Plex Mono',monospace;margin-top:2px;}
+
+  .net-chip{display:flex;align-items:center;gap:6px;padding:5px 11px;border-radius:20px;font-size:10.5px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;font-family:'IBM Plex Mono',monospace;}
+  .net-chip.online{background:rgba(47,181,125,0.15);color:var(--safe);border:1px solid rgba(47,181,125,0.35);}
+  .net-chip.offline{background:rgba(193,39,45,0.15);color:var(--danger);border:1px solid rgba(193,39,45,0.35);}
+  .net-dot{width:7px;height:7px;border-radius:50%;background:currentColor;}
+  .net-chip.online .net-dot{animation:blink 1.6s ease-in-out infinite;}
+  @keyframes blink{0%,100%{opacity:1;}50%{opacity:0.35;}}
+
+  main{padding:18px 18px 40px;}
+
+  .sync-panel{
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+    background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:16px;margin-bottom:18px;
+  }
+  .sync-panel .lbl{font-size:11px;color:var(--text-faint);letter-spacing:0.04em;}
+  .sync-panel .count{font-family:'IBM Plex Mono',monospace;font-size:26px;font-weight:600;color:var(--text);line-height:1.1;margin-top:2px;}
+  .sync-panel .count .unit{font-size:11px;color:var(--text-dim);font-weight:400;font-family:'Inter',sans-serif;margin-left:6px;}
+  .btn-sync{
+    background:var(--brand);color:#FFF6F5;border:none;border-radius:8px;padding:12px 18px;
+    font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;letter-spacing:0.06em;text-transform:uppercase;
+    cursor:pointer;white-space:nowrap;transition:background .15s, transform .1s;
+  }
+  .btn-sync:hover{background:#A81F25;} .btn-sync:active{transform:scale(0.97);}
+  .btn-sync:disabled{background:var(--line);color:var(--text-faint);cursor:not-allowed;}
+
+  .panel{background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:20px;}
+  .eyebrow{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--brand);letter-spacing:0.16em;text-transform:uppercase;margin-bottom:6px;display:flex;align-items:center;gap:8px;}
+  .eyebrow::before{content:"";width:16px;height:2px;background:var(--brand);display:inline-block;}
+  .panel h2{font-size:20px;margin:0 0 4px;color:var(--text);}
+  .panel .desc{font-size:12px;color:var(--text-faint);margin:0 0 18px;line-height:1.4;}
+
+  label.field-label{display:block;font-size:11.5px;color:var(--text-dim);margin-bottom:6px;font-weight:500;}
+  input[type=text], input[type=date]{
+    width:100%;background:var(--surface);border:1px solid var(--line);color:var(--text);
+    padding:11px 12px;border-radius:7px;font-size:14px;font-family:'IBM Plex Mono',monospace;outline:none;
+    transition:border-color .15s, box-shadow .15s;color-scheme:dark;
+  }
+  input:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(193,39,45,0.15);}
+
+  textarea{
+    width:100%;background:var(--surface);border:1px solid var(--line);color:var(--text);
+    padding:11px 12px;border-radius:7px;font-size:13.5px;font-family:'Inter',sans-serif;outline:none;
+    resize:vertical;min-height:64px;transition:border-color .15s, box-shadow .15s;
+  }
+  textarea:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(193,39,45,0.15);}
+
+  .field-block{margin-bottom:18px;}
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px;}
+
+  .rco-tag{
+    display:inline-flex;align-items:center;gap:6px;background:var(--brand);color:#FFF6F5;
+    font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;letter-spacing:0.08em;
+    text-transform:uppercase;padding:4px 10px;border-radius:20px;margin-bottom:10px;
+  }
+  .doc-meta{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--text-faint);letter-spacing:0.06em;margin:-8px 0 16px;}
+
+  .checklist-section{border-top:1px solid var(--line);padding-top:16px;margin-top:4px;}
+  .checklist-section h3{font-size:13px;font-weight:600;color:var(--text-dim);margin:0 0 12px;text-transform:none;font-family:'Inter',sans-serif;letter-spacing:0;}
+
+  .progress{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+  .progress-bar{flex:1;height:6px;background:var(--surface);border:1px solid var(--line);border-radius:4px;overflow:hidden;}
+  .progress-fill{height:100%;width:0;background:var(--safe);transition:width .2s;}
+  .progress-txt{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--text-dim);white-space:nowrap;}
+
+  .check-item{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px;margin-bottom:10px;transition:border-color .15s;}
+  .check-item.is-bad{border-color:rgba(193,39,45,0.55);}
+  .check-item .q{font-size:12.5px;color:var(--text);margin-bottom:10px;line-height:1.4;}
+  .seg{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;}
+  .seg button{
+    border:1px solid var(--line);background:var(--surface-2);color:var(--text-faint);
+    padding:8px 4px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;
+    font-family:'Barlow Condensed',sans-serif;letter-spacing:0.03em;text-transform:uppercase;transition:all .15s;
+  }
+  .seg button.sel-ok{background:rgba(47,181,125,0.18);border-color:var(--safe);color:var(--safe);}
+  .seg button.sel-bad{background:rgba(193,39,45,0.18);border-color:var(--danger);color:var(--danger);}
+  .seg button.sel-na{background:rgba(140,151,163,0.18);border-color:var(--text-dim);color:var(--text-dim);}
+
+  .comment-input{
+    width:100%;background:var(--surface-2);border:1px solid var(--line);color:var(--text);
+    padding:7px 9px;border-radius:6px;font-size:11.5px;font-family:'Inter',sans-serif;outline:none;margin-top:8px;
+  }
+  .comment-input::placeholder{color:var(--text-faint);}
+  .comment-input:focus{border-color:var(--brand);}
+
+  .action-box{margin-top:10px;padding:10px;border-radius:6px;background:rgba(193,39,45,0.08);border:1px dashed rgba(193,39,45,0.45);}
+  .action-box .ttl{font-family:'IBM Plex Mono',monospace;font-size:9.5px;color:var(--danger);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:8px;}
+  .action-box .row{display:grid;grid-template-columns:1.4fr 1fr;gap:6px;}
+  .action-box input{margin-top:0;font-size:11.5px;padding:7px 9px;border-radius:6px;background:var(--surface-2);font-family:'Inter',sans-serif;}
+
+  .sai-banner{
+    background:rgba(240,164,0,0.12);border:1px solid rgba(240,164,0,0.4);color:var(--caution);
+    border-radius:8px;padding:12px 14px;font-size:11.5px;font-weight:600;line-height:1.5;margin:18px 0;
+  }
+
+  .sig-section{border-top:1px solid var(--line);padding-top:16px;margin-top:16px;}
+  .sig-section .role{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--brand);letter-spacing:0.16em;text-transform:uppercase;margin-bottom:10px;}
+  .sig-frame{background:#fff;border-radius:8px;padding:2px;}
+  canvas.sig-pad{width:100%;height:130px;display:block;border-radius:6px;touch-action:none;}
+  .sig-actions{display:flex;justify-content:space-between;align-items:center;margin-top:8px;}
+  .sig-hint{font-size:10.5px;color:var(--text-faint);}
+  .link-btn{background:none;border:none;color:var(--text-faint);font-size:11px;cursor:pointer;text-decoration:underline;padding:0;}
+  .link-btn:hover{color:var(--brand);}
+  .opt{color:var(--text-faint);font-weight:400;}
+
+  .btn-primary{
+    width:100%;padding:15px;border:none;border-radius:8px;cursor:pointer;margin-top:18px;
+    background:var(--safe);color:#08251a;font-weight:700;font-size:14px;
+    font-family:'Barlow Condensed',sans-serif;letter-spacing:0.08em;text-transform:uppercase;
+    transition:background .15s, transform .1s;
+  }
+  .btn-primary:hover{background:#3ac98e;} .btn-primary:active{transform:scale(0.99);}
+  .btn-primary:disabled{background:var(--line);color:var(--text-faint);cursor:not-allowed;}
+
+  .toast{
+    position:fixed;left:50%;bottom:24px;transform:translateX(-50%);
+    background:var(--surface-2);border:1px solid var(--line);border-left:3px solid var(--safe);
+    color:var(--text);padding:12px 16px;border-radius:8px;font-size:13px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.4);z-index:50;max-width:88%;text-align:center;
+    opacity:0;pointer-events:none;transition:opacity .25s, transform .25s;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(-4px);}
+  .toast.err{border-left-color:var(--danger);}
+
+  .hidden{display:none !important;}
+  @media (max-width:380px){ .grid-2, .action-box .row{grid-template-columns:1fr;} }
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+
+  <div class="topbar">
+    <a class="brand" href="../">
+      <div class="brand-mark"></div>
+      <div class="brand-text">
+        <div class="name"><span class="n-salfa">SALFA</span><span class="n-montajes">MONTAJES</span></div>
+        <div class="sub">SSOMA · Gestión del sitio</div>
+      </div>
+    </a>
+    <div class="net-chip online" id="net-chip">
+      <span class="net-dot"></span><span id="net-text">EN LÍNEA</span>
+    </div>
+  </div>
+
+  <main>
+
+    <!-- Cola de sincronización -->
+    <div class="sync-panel">
+      <div>
+        <div class="lbl">Registros en este dispositivo</div>
+        <div class="count"><span id="pending-count">0</span><span class="unit">pendientes</span></div>
+      </div>
+      <button class="btn-sync" id="sync-btn" onclick="syncData()">Sincronizar</button>
+    </div>
+
+    <!-- Formulario -->
+    <div class="panel">
+      <div class="rco-tag">SSOMA · Gestión del sitio</div>
+      <div class="eyebrow">Check list de orden y aseo</div>
+      <h2>Gestión del Sitio</h2>
+      <p class="desc">Inspeccione los siguientes elementos en el área de trabajo. Para cada incumplimiento, asigne un responsable y una fecha de ejecución.</p>
+      <div class="doc-meta">REV: 0 · FECHA: 20/01/2021</div>
+
+      <form id="checklist-form" onsubmit="saveChecklist(event)">
+        <div class="grid-2">
+          <div>
+            <label class="field-label">Obra o contrato</label>
+            <input type="text" id="obra" required placeholder="Ej: Planta Chancado">
+          </div>
+          <div>
+            <label class="field-label">Área</label>
+            <input type="text" id="area" required placeholder="Ej: Taller mecánico">
+          </div>
+        </div>
+        <div class="field-block">
+          <label class="field-label">Fecha / hora de inspección</label>
+          <input type="text" id="fecha-hora" required>
+        </div>
+
+        <div class="checklist-section">
+          <h3>Elementos a inspeccionar</h3>
+          <div class="progress">
+            <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+            <div class="progress-txt" id="progress-txt">0/0 · Cumplimiento —</div>
+          </div>
+          <div id="items-list"></div>
+        </div>
+
+        <div class="field-block" style="margin-top:8px;">
+          <label class="field-label">Observaciones <span class="opt">(opcional)</span></label>
+          <textarea id="observaciones" placeholder="Hallazgos adicionales, condiciones del área, etc."></textarea>
+        </div>
+
+        <div class="sai-banner">⚠ Los incumplimientos identificados deben ser corregidos por el responsable asignado dentro del plazo y, cuando corresponda, reportados al Sistema de Administración de Incidentes (SAI).</div>
+
+        <div class="sig-section">
+          <div class="role">Realizó</div>
+          <div class="grid-2">
+            <div>
+              <label class="field-label">Nombre</label>
+              <input type="text" id="realizo-nombre" required placeholder="Nombre completo">
+            </div>
+            <div>
+              <label class="field-label">Cargo</label>
+              <input type="text" id="realizo-cargo" required placeholder="Ej: Supervisor">
+            </div>
+          </div>
+          <label class="field-label">Firma</label>
+          <div class="sig-frame"><canvas class="sig-pad" id="sig-realizo"></canvas></div>
+          <div class="sig-actions">
+            <span class="sig-hint">Dibuje con el dedo o el mouse</span>
+            <button type="button" class="link-btn" onclick="pads.realizo.clear()">Limpiar firma</button>
+          </div>
+        </div>
+
+        <div class="sig-section">
+          <div class="role">Revisó <span class="opt" style="letter-spacing:0;text-transform:none;font-family:'Inter',sans-serif;">(opcional)</span></div>
+          <div class="grid-2">
+            <div>
+              <label class="field-label">Nombre</label>
+              <input type="text" id="reviso-nombre" placeholder="Nombre completo">
+            </div>
+            <div>
+              <label class="field-label">Cargo</label>
+              <input type="text" id="reviso-cargo" placeholder="Ej: Prevencionista">
+            </div>
+          </div>
+          <label class="field-label">Firma</label>
+          <div class="sig-frame"><canvas class="sig-pad" id="sig-reviso"></canvas></div>
+          <div class="sig-actions">
+            <span class="sig-hint">Dibuje con el dedo o el mouse</span>
+            <button type="button" class="link-btn" onclick="pads.reviso.clear()">Limpiar firma</button>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-primary" id="submit-btn">Guardar inspección</button>
+      </form>
+    </div>
+
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  // ---------- Estado de red ----------
+  function updateOnlineStatus(){
+    const chip = document.getElementById('net-chip');
+    const txt = document.getElementById('net-text');
+    if(navigator.onLine){
+      chip.className = 'net-chip online'; txt.textContent = 'EN LÍNEA';
+    } else {
+      chip.className = 'net-chip offline'; txt.textContent = 'MODO OFFLINE';
+    }
+  }
+  window.addEventListener('online', updateOnlineStatus);
+  window.addEventListener('offline', updateOnlineStatus);
+  updateOnlineStatus();
+
+  // ---------- Firmas (canvas) ----------
+  function createSignaturePad(canvas){
+    const ctx = canvas.getContext('2d');
+    const pad = { signed:false, drawing:false };
+
+    let lastWidth = 0;
+    function resize(){
+      // En móvil, el scroll dispara 'resize' (barra de direcciones); solo redimensionar si cambia el ancho
+      if(canvas.offsetWidth === lastWidth) return;
+      lastWidth = canvas.offsetWidth;
+      const ratio = Math.max(window.devicePixelRatio || 1, 1);
+      canvas.width = canvas.offsetWidth * ratio;
+      canvas.height = canvas.offsetHeight * ratio;
+      ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+      ctx.strokeStyle = '#000000';
+      ctx.lineWidth = 2;
+      ctx.lineCap = 'round';
+      pad.signed = false;
+    }
+    function getPos(e){
+      const rect = canvas.getBoundingClientRect();
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      return { x: clientX - rect.left, y: clientY - rect.top };
+    }
+    function start(e){ pad.drawing=true; pad.signed=true; ctx.beginPath(); const p=getPos(e); ctx.moveTo(p.x,p.y); if(e.touches) e.preventDefault(); }
+    function move(e){ if(pad.drawing){ const p=getPos(e); ctx.lineTo(p.x,p.y); ctx.stroke(); if(e.touches) e.preventDefault(); } }
+
+    canvas.addEventListener('mousedown', start);
+    canvas.addEventListener('mousemove', move);
+    window.addEventListener('mouseup', ()=>pad.drawing=false);
+    canvas.addEventListener('touchstart', start);
+    canvas.addEventListener('touchmove', move);
+    canvas.addEventListener('touchend', ()=>pad.drawing=false);
+
+    pad.resize = resize;
+    pad.clear = ()=>{ ctx.clearRect(0,0,canvas.width,canvas.height); pad.signed=false; };
+    pad.toDataURL = ()=>canvas.toDataURL();
+    return pad;
+  }
+
+  const pads = {
+    realizo: createSignaturePad(document.getElementById('sig-realizo')),
+    reviso: createSignaturePad(document.getElementById('sig-reviso'))
+  };
+  function resizePads(){ Object.values(pads).forEach(p=>p.resize()); }
+  window.addEventListener('resize', resizePads);
+  setTimeout(resizePads, 80);
+
+  // ---------- Datos del check list ----------
+  const CHECK = {
+    codigo: 'GESTION-SITIO',
+    nombre: 'Check List Gestión del Sitio',
+    revision: 0,
+    fechaRevision: '20/01/2021',
+    items: [
+      '¿El sistema de iluminación permanece limpio y en buenas condiciones?',
+      '¿Los equipos de extinción están accesibles y debidamente identificados?',
+      '¿Los pasillos permanecen limpios y despejados?',
+      '¿Existen áreas de tránsito definidas al interior del área?',
+      '¿Los pisos permanecen libres de obstáculos o sustancias deslizantes?',
+      '¿Existe número adecuado de contenedores para residuos?',
+      '¿Las herramientas son guardadas en forma ordenada y protegidas?',
+      '¿Existe un lugar definido para el estacionamiento de máquinas y equipos?',
+      '¿Se controlan los despuntes con clavos doblados o libres de éstos?',
+      '¿Las extensiones eléctricas se mantienen por vía aérea?',
+      '¿Existen sectores definidos para el acopio de diferentes materiales?',
+      '¿El área de trabajo cuenta con una estación de agua para beber?',
+      '¿Los baños químicos se encuentran a menos de 75 mts?',
+      '¿Existe señalización visible y permanente en las zonas de peligro? ¿Se indica el agente y condición de riesgo?',
+      '¿Se etiquetan las sustancias peligrosas dispuestas en las zonas de trabajo?',
+      '¿Los equipos y/o maquinarias cuentan con una bandeja antiderrame?',
+      '¿El área de trabajo cuenta con un letrero indicando el responsable del área y número de contacto (Jefe de área / Prevención)?'
+    ]
+  };
+
+  function formatNow(){
+    const now = new Date();
+    return now.toLocaleDateString('es-CL') + ' ' + now.toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit'});
+  }
+  document.getElementById('fecha-hora').value = formatNow();
+
+  // ---------- Checklist toggles ----------
+  let values = {};
+  let details = {}; // idx -> { comentario, responsable, fecha }
+
+  function detail(idx){ return details[idx] || (details[idx] = { comentario:'', responsable:'', fecha:'' }); }
+
+  function updateProgress(){
+    const total = CHECK.items.length;
+    const answered = Object.keys(values).length;
+    const si = Object.values(values).filter(v=>v==='SI').length;
+    const no = Object.values(values).filter(v=>v==='NO').length;
+    const aplicables = si + no;
+    const pct = aplicables ? Math.round(si * 100 / aplicables) : null;
+    document.getElementById('progress-fill').style.width = (answered * 100 / total) + '%';
+    document.getElementById('progress-txt').textContent =
+      answered + '/' + total + ' · Cumplimiento ' + (pct === null ? '—' : pct + '%');
+  }
+
+  function setCheck(idx, value, btnEl){
+    values[idx] = value;
+    const item = btnEl.closest('.check-item');
+    item.querySelectorAll('.seg button').forEach(b=>b.classList.remove('sel-ok','sel-bad','sel-na'));
+    btnEl.classList.add(value==='SI' ? 'sel-ok' : value==='NO' ? 'sel-bad' : 'sel-na');
+    item.classList.toggle('is-bad', value==='NO');
+    item.querySelector('.action-box').classList.toggle('hidden', value!=='NO');
+    updateProgress();
+  }
+
+  function buildChecklist(){
+    const container = document.getElementById('items-list');
+    container.innerHTML = '';
+    CHECK.items.forEach((text, idx)=>{
+      const item = document.createElement('div');
+      item.className = 'check-item';
+
+      const q = document.createElement('div');
+      q.className = 'q';
+      q.textContent = (idx+1) + '. ' + text;
+      item.appendChild(q);
+
+      const seg = document.createElement('div');
+      seg.className = 'seg';
+      [['SI','SI'],['NO','NO'],['N/A','N.A']].forEach(([value,label])=>{
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.textContent = label;
+        btn.addEventListener('click', ()=>setCheck(idx, value, btn));
+        seg.appendChild(btn);
+      });
+      item.appendChild(seg);
+
+      const comment = document.createElement('input');
+      comment.type = 'text';
+      comment.className = 'comment-input';
+      comment.placeholder = 'Comentario (opcional)';
+      comment.addEventListener('input', ()=>{ detail(idx).comentario = comment.value; });
+      item.appendChild(comment);
+
+      const box = document.createElement('div');
+      box.className = 'action-box hidden';
+      box.innerHTML = '<div class="ttl">Acción correctiva</div><div class="row"></div>';
+      const resp = document.createElement('input');
+      resp.type = 'text';
+      resp.placeholder = 'Responsable ejecución';
+      resp.addEventListener('input', ()=>{ detail(idx).responsable = resp.value; });
+      const fecha = document.createElement('input');
+      fecha.type = 'date';
+      fecha.title = 'Fecha de ejecución';
+      fecha.addEventListener('input', ()=>{ detail(idx).fecha = fecha.value; });
+      box.querySelector('.row').append(resp, fecha);
+      item.appendChild(box);
+
+      container.appendChild(item);
+    });
+    updateProgress();
+  }
+  buildChecklist();
+
+  // ---------- Toast ----------
+  let toastTimer;
+  function showToast(msg, isErr=false){
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast show' + (isErr ? ' err' : '');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(()=>t.classList.remove('show'), 2800);
+  }
+
+  // ---------- Almacenamiento persistente (cola offline) ----------
+  const STORAGE_KEY = 'salfa_gestion_sitio_pending';
+
+  function getQueue(){
+    try{
+      const raw = localStorage.getItem(STORAGE_KEY);
+      return raw ? JSON.parse(raw) : [];
+    }catch(err){
+      console.error('Error al leer almacenamiento local:', err);
+      return [];
+    }
+  }
+
+  function setQueue(queue){
+    try{
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(queue));
+      return true;
+    }catch(err){
+      console.error('Error al guardar en almacenamiento local:', err);
+      return false;
+    }
+  }
+
+  function updatePendingCount(){
+    document.getElementById('pending-count').textContent = getQueue().length;
+  }
+
+  function val(id){ return document.getElementById(id).value.trim(); }
+
+  function saveChecklist(e){
+    e.preventDefault();
+
+    const firstMissing = CHECK.items.findIndex((_, i)=>!values[i]);
+    if(firstMissing !== -1){
+      showToast('Falta responder el punto ' + (firstMissing+1) + '.', true);
+      document.querySelectorAll('.check-item')[firstMissing].scrollIntoView({behavior:'smooth', block:'center'});
+      return;
+    }
+    const sinAccion = CHECK.items.findIndex((_, i)=>values[i]==='NO' && (!detail(i).responsable.trim() || !detail(i).fecha));
+    if(sinAccion !== -1){
+      showToast('Asigna responsable y fecha de ejecución al punto ' + (sinAccion+1) + '.', true);
+      document.querySelectorAll('.check-item')[sinAccion].scrollIntoView({behavior:'smooth', block:'center'});
+      return;
+    }
+    if(!pads.realizo.signed){
+      showToast('Falta la firma de quien realizó la inspección.', true);
+      return;
+    }
+    if(pads.reviso.signed && !val('reviso-nombre')){
+      showToast('Indica el nombre de quien revisó.', true);
+      return;
+    }
+
+    const submitBtn = document.getElementById('submit-btn');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Guardando…';
+
+    const items = CHECK.items.map((text, idx)=>({
+      item: text,
+      valor: values[idx],
+      comentario: detail(idx).comentario,
+      responsableEjecucion: values[idx]==='NO' ? detail(idx).responsable : '',
+      fechaEjecucion: values[idx]==='NO' ? detail(idx).fecha : ''
+    }));
+    const si = items.filter(i=>i.valor==='SI').length;
+    const no = items.filter(i=>i.valor==='NO').length;
+
+    const record = {
+      id: 'GS-' + Date.now(),
+      formulario: { codigo: CHECK.codigo, nombre: CHECK.nombre, revision: CHECK.revision, fechaRevision: CHECK.fechaRevision },
+      timestamp: new Date().toISOString(),
+      obra: val('obra'),
+      area: val('area'),
+      fechaHora: val('fecha-hora'),
+      items,
+      resumen: { si, no, na: items.length - si - no, cumplimiento: (si+no) ? Math.round(si*100/(si+no)) : null },
+      observaciones: val('observaciones'),
+      realizo: { nombre: val('realizo-nombre'), cargo: val('realizo-cargo'), firma: pads.realizo.toDataURL(), fecha: new Date().toISOString() },
+      reviso: pads.reviso.signed || val('reviso-nombre')
+        ? { nombre: val('reviso-nombre'), cargo: val('reviso-cargo'), firma: pads.reviso.signed ? pads.reviso.toDataURL() : '', fecha: pads.reviso.signed ? new Date().toISOString() : '' }
+        : null,
+      synced: false
+    };
+
+    const queue = getQueue();
+    queue.push(record);
+    const ok = setQueue(queue);
+
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Guardar inspección';
+
+    if(ok){
+      showToast('✅ Inspección guardada en el dispositivo.');
+      document.getElementById('checklist-form').reset();
+      pads.realizo.clear(); pads.reviso.clear();
+      values = {}; details = {};
+      buildChecklist();
+      document.getElementById('fecha-hora').value = formatNow();
+      updatePendingCount();
+      window.scrollTo({top:0, behavior:'smooth'});
+    } else {
+      showToast('No se pudo guardar (almacenamiento lleno o bloqueado).', true);
+    }
+  }
+
+  function syncData(){
+    const queue = getQueue();
+    if(queue.length === 0){
+      showToast('No hay registros pendientes por sincronizar.');
+      return;
+    }
+    if(!navigator.onLine){
+      showToast('⚠️ Sin conexión a internet. Conéctate para sincronizar.', true);
+      return;
+    }
+
+    const btn = document.getElementById('sync-btn');
+    btn.disabled = true;
+    btn.textContent = 'Sincronizando…';
+
+    // Simulación de envío a API backend de Salfa
+    setTimeout(()=>{
+      const ok = setQueue([]);
+      btn.disabled = false;
+      btn.textContent = 'Sincronizar';
+      if(ok){
+        showToast(`🚀 Sincronización exitosa: ${queue.length} registro(s) subidos.`);
+        updatePendingCount();
+      } else {
+        showToast('Error al limpiar la cola local tras sincronizar.', true);
+      }
+    }, 900);
+  }
+
+  updatePendingCount();
+</script>
+</body>
+</html>
